@@ -114,12 +114,22 @@ def visualize_pddl_plan(ascii_map, domain_file, problem_file):
     pygame.quit()
 
 if __name__ == "__main__":
-    # We test visualizer on the Example 2 map (Joint Push Co-op)
-    ex2_map = [
-        "WWWWWW",
-        "W AA W",
-        "W CC W",
-        "W G  W",
-        "WWWWWW"
+    from environment.pddl_extractor import generate_pddl_for_env
+    # We test visualizer on a large map with a joint BigBox push
+    large_map = [
+        "WWWWWWWW",
+        "W  AA  W",
+        "W  CC  W",
+        "W      W",
+        "W      W",
+        "W  G   W",
+        "WWWWWWWW"
     ]
-    visualize_pddl_plan(ex2_map, "pddl/ex2_domain.pddl", "pddl/ex2_problem.pddl")
+    
+    print("🌍 Generating Environment and extracting PDDL...")
+    env_sim = MultiAgentBoxPushEnv(ascii_map=large_map, render_mode="rgb_array")
+    env_sim.reset()
+    generate_pddl_for_env(env_sim, "pddl")
+    
+    print("🚀 Running visualization pipeline...")
+    visualize_pddl_plan(large_map, "pddl/domain.pddl", "pddl/problem.pddl")
