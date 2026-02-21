@@ -3,13 +3,15 @@ import os
 def generate_domain(domain_path):
     domain_str = """(define (domain box-push)
   (:requirements :strips :typing)
-  (:types agent location box)
+  (:types agent location box bigbox)
   (:predicates
     (agent-at ?a - agent ?loc - location)
     (box-at ?b - box ?loc - location)
+    (bigbox-at ?b - bigbox ?loc1 - location ?loc2 - location)
     (clear ?loc - location)
     (adj ?l1 - location ?l2 - location)
     (goal ?loc - location)
+    (won )
   )
   
   (:action move
@@ -22,6 +24,43 @@ def generate_domain(domain_path):
     :parameters (?a - agent ?from - location ?boxloc - location ?toloc - location ?b - box)
     :precondition (and (agent-at ?a ?from) (adj ?from ?boxloc) (box-at ?b ?boxloc) (adj ?boxloc ?toloc) (clear ?toloc))
     :effect (and (agent-at ?a ?boxloc) (not (agent-at ?a ?from)) (clear ?from) (box-at ?b ?toloc) (not (box-at ?b ?boxloc)) (not (clear ?toloc)))
+  )
+
+  (:action push-big
+    :parameters (?a1 - agent ?a2 - agent ?from1 - location ?from2 - location 
+                 ?boxloc1 - location ?boxloc2 - location 
+                 ?toloc1 - location ?toloc2 - location ?b - bigbox)
+    :precondition (and 
+        (agent-at ?a1 ?from1) (adj ?from1 ?boxloc1)
+        (agent-at ?a2 ?from2) (adj ?from2 ?boxloc2)
+        (bigbox-at ?b ?boxloc1 ?boxloc2)
+        (adj ?boxloc1 ?toloc1) (clear ?toloc1)
+        (adj ?boxloc2 ?toloc2) (clear ?toloc2)
+    )
+    :effect (and 
+        (agent-at ?a1 ?boxloc1) (not (agent-at ?a1 ?from1)) (clear ?from1)
+        (agent-at ?a2 ?boxloc2) (not (agent-at ?a2 ?from2)) (clear ?from2)
+        (bigbox-at ?b ?toloc1 ?toloc2) (not (bigbox-at ?b ?boxloc1 ?boxloc2))
+        (not (clear ?toloc1)) (not (clear ?toloc2))
+    )
+  )
+  
+  (:action win-small
+    :parameters (?b - box ?loc - location)
+    :precondition (and (box-at ?b ?loc) (goal ?loc))
+    :effect (won)
+  )
+
+  (:action win-big-1
+    :parameters (?b - bigbox ?loc1 - location ?loc2 - location)
+    :precondition (and (bigbox-at ?b ?loc1 ?loc2) (goal ?loc1))
+    :effect (won)
+  )
+  
+  (:action win-big-2
+    :parameters (?b - bigbox ?loc1 - location ?loc2 - location)
+    :precondition (and (bigbox-at ?b ?loc1 ?loc2) (goal ?loc2))
+    :effect (won)
   )
 )
 """
@@ -37,6 +76,7 @@ def generate_problem(env, problem_path):
     clear_locs = []
     agents = env.agents
     boxes = []
+    big_boxes_dict = {}
     goals = []
     
     # Analyze the static grid
@@ -47,7 +87,7 @@ def generate_problem(env, problem_path):
                 loc = f"loc_{x}_{y}"
                 locations.append(loc)
                 
-                # Check adjacencies (right and down to avoid repeating, then double it)
+                # Check adjacencies
                 if x < w - 1:
                     r_cell = env.core_env.grid.get(x+1, y)
                     if r_cell is None or r_cell.type != 'wall':
@@ -63,34 +103,35 @@ def generate_problem(env, problem_path):
                 if cell is not None and cell.type == "goal":
                     goals.append(loc)
                 elif cell is not None and cell.type == "box":
-                    boxes.append((f"box_{len(boxes)}", loc))
-                else:
-                    # Initially assume clear, we will remove agent locations later
-                    clear_locs.append(loc)
+                    if getattr(cell, "box_size", "") == "big":
+                        gid = getattr(cell, "group_id", 0)
+                        if gid not in big_boxes_dict:
+                            big_boxes_dict[gid] = []
+                        big_boxes_dict[gid].append(loc)
+                    else:
+                        boxes.append((f"box_{len(boxes)}", loc))
 
     agent_locs = []
     for a in agents:
         px, py = env.agent_positions[a]
-        aloc = f"loc_{px}_{py}"
-        agent_locs.append((a, aloc))
-        if aloc in clear_locs:
-            clear_locs.remove(aloc)
+        agent_locs.append((a, f"loc_{px}_{py}"))
             
-    # For boxes, they were actually in the grid so they might be in clear_locs?
-    # Wait, my logic above added loc to clear_locs if not goal and not box.
-    # What if it IS goal? Goal is clear but has a Goal object!
-    # Let's rebuild clear_locs reliably
     clear_set = set(locations)
     for _, loc in agent_locs:
         clear_set.discard(loc)
     for _, loc in boxes:
         clear_set.discard(loc)
+    for _, parts in big_boxes_dict.items():
+        for p in parts:
+            clear_set.discard(p)
 
     obj_str = "    " + " ".join(locations) + " - location\n"
     if agents:
         obj_str += "    " + " ".join(agents) + " - agent\n"
     if boxes:
         obj_str += "    " + " ".join([b[0] for b in boxes]) + " - box\n"
+    if big_boxes_dict:
+        obj_str += "    " + " ".join([f"bbig_{i}" for i in big_boxes_dict.keys()]) + " - bigbox\n"
 
     init_str = ""
     for loc in clear_set:
@@ -99,15 +140,15 @@ def generate_problem(env, problem_path):
         init_str += f"    (agent-at {a} {loc})\n"
     for b, loc in boxes:
         init_str += f"    (box-at {b} {loc})\n"
+    for gid, parts in big_boxes_dict.items():
+        if len(parts) == 2:
+            init_str += f"    (bigbox-at bbig_{gid} {parts[0]} {parts[1]})\n"
     for l1, l2 in adjacencies:
         init_str += f"    (adj {l1} {l2})\n"
+    for g in goals:
+        init_str += f"    (goal {g})\n"
         
-    goal_str = ""
-    if goals and boxes:
-        # Simplistic goal: any box at the goal
-        goal_str = f"(box-at {boxes[0][0]} {goals[0]})"
-    else:
-        goal_str = "(clear loc_1_1) ; dummy"
+    goal_str = "(won)"
 
     problem_str = f"""(define (problem bp-map)
   (:domain box-push)

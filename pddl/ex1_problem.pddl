@@ -6,13 +6,13 @@
     box_0 - box
   )
   (:init
-    (clear loc_1_1)
+    (clear loc_3_1)
+    (clear loc_2_3)
     (clear loc_3_2)
     (clear loc_3_3)
-    (clear loc_3_1)
     (clear loc_1_3)
     (clear loc_1_2)
-    (clear loc_2_3)
+    (clear loc_1_1)
     (agent-at agent_0 loc_2_1)
     (box-at box_0 loc_2_2)
     (adj loc_1_1 loc_2_1)
@@ -39,8 +39,9 @@
     (adj loc_2_3 loc_1_3)
     (adj loc_2_3 loc_3_3)
     (adj loc_3_3 loc_2_3)
+    (goal loc_2_3)
   )
   (:goal
-    (box-at box_0 loc_2_3)
+    (won)
   )
 )
