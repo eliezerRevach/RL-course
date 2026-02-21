@@ -4,6 +4,8 @@ from pettingzoo import ParallelEnv
 from minigrid.core.grid import Grid
 from minigrid.core.mission import MissionSpace
 from minigrid.core.world_object import Wall, Goal, WorldObj
+from minigrid.utils.rendering import fill_coords, point_in_circle
+from minigrid.core.constants import COLORS
 from minigrid.minigrid_env import MiniGridEnv
 from environment.objects import SmallBox, BigBox
 
@@ -19,7 +21,9 @@ class AgentObj(WorldObj):
         return False
 
     def render(self, img):
-        pass # Optional: Add custom geometry if we ever use human rendering directly
+        # Fallback if color is string
+        c = COLORS.get(self.color, (255, 0, 0))
+        fill_coords(img, point_in_circle(0.5, 0.5, 0.3), c)
 
 class MultiAgentBoxPushEnv(ParallelEnv):
     metadata = {

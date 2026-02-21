@@ -1,11 +1,11 @@
-from minigrid.core.world_object import WorldObj
+from minigrid.core.world_object import WorldObj, Box
 
-class SmallBox(WorldObj):
+class SmallBox(Box):
     """
     A small box that can be pushed by a single agent.
     """
     def __init__(self, color="yellow"):
-        super().__init__("box", color)
+        super().__init__(color)
         # Custom property to differentiate from regular minigrid boxes
         self.box_size = "small"
 
@@ -17,14 +17,12 @@ class SmallBox(WorldObj):
         """Boxes cannot be picked up, only pushed"""
         return False
 
-class BigBox(WorldObj):
+class BigBox(Box):
     """
     A big box that requires two agents pushing in the exact same direction simultaneously to move.
     """
     def __init__(self, color="purple"):
-        # We can use a different type name or the same "box" type but differentiate via our property.
-        # MiniGrid rendering uses the type string to pick the drawing method. "box" will draw a box.
-        super().__init__("box", color)
+        super().__init__(color)
         self.box_size = "big"
 
     def can_overlap(self):
