@@ -75,6 +75,31 @@ class MultiAgentBoxPushEnv(ParallelEnv):
         )
         self.core_env._gen_grid = self._gen_grid
         
+        # Override get_frame to decouple agent rendering from grid logic
+        def custom_get_frame(*args, **kwargs):
+            tile_size = kwargs.get('tile_size', 32)
+            if len(args) > 1:
+                tile_size = args[1]
+                
+            img = self.core_env.grid.render(tile_size, agent_pos=(-1, -1), agent_dir=0, highlight_mask=None)
+            
+            for agent in self.possible_agents:
+                if agent in self.agent_positions:
+                    pos = self.agent_positions[agent]
+                    ag_obj = self.agent_objects[agent]
+                    
+                    ymin = pos[1] * tile_size
+                    ymax = (pos[1] + 1) * tile_size
+                    xmin = pos[0] * tile_size
+                    xmax = (pos[0] + 1) * tile_size
+                    
+                    tile_img = img[ymin:ymax, xmin:xmax, :]
+                    ag_obj.render(tile_img)
+                    
+            return img
+            
+        self.core_env.get_frame = custom_get_frame
+        
     def observation_space(self, agent):
         return self.core_env.observation_space
         
@@ -84,13 +109,15 @@ class MultiAgentBoxPushEnv(ParallelEnv):
         
     def _gen_grid(self, width, height):
         self.core_env.grid = Grid(width, height)
+        self.core_env.agent_pos = (-1, -1)
+        self.core_env.agent_dir = 0
         self.agent_positions = {}
         self.agent_dirs = {}
         self.agent_objects = {}
         self.big_boxes = {}
         
         agent_idx = 0
-        colors = ["red", "blue", "green", "purple"]
+        colors = ["green", "red", "blue", "purple"]
         
         grid_C = {}
         for y, row in enumerate(self.ascii_map):
@@ -138,7 +165,6 @@ class MultiAgentBoxPushEnv(ParallelEnv):
                     
                     obj = AgentObj(color=color, dir=1)
                     self.agent_objects[agent_name] = obj
-                    self.core_env.grid.set(x, y, obj)
                     
                     agent_idx += 1
 
@@ -157,11 +183,10 @@ class MultiAgentBoxPushEnv(ParallelEnv):
             self.core_env.agent_pos = pos
             self.core_env.agent_dir = self.agent_dirs[agent]
             
-            # Remove agent momentarily so it doesn't see itself as an obstacle incorrectly in gen_obs
-            self.core_env.grid.set(*pos, None)
             observations[agent] = self.core_env.gen_obs()
-            self.core_env.grid.set(*pos, self.agent_objects[agent])
             
+        self.core_env.agent_pos = (-1, -1) # Reset back to dummy invisible space 
+        
         return observations, {agent: {} for agent in self.agents}
 
     def step(self, actions):
@@ -242,11 +267,8 @@ class MultiAgentBoxPushEnv(ParallelEnv):
                         
                         # Move the agents into their target blocks
                         for a in pushers:
-                            pos = self.agent_positions[a]
                             tgt = agent_intents[a]["target_pos"]
-                            self.core_env.grid.set(*pos, None)
                             self.agent_positions[a] = tgt
-                            self.core_env.grid.set(*tgt, self.agent_objects[a])
                             
                             # Remove from remaining single movements queue
                             del agent_intents[a]
@@ -259,9 +281,7 @@ class MultiAgentBoxPushEnv(ParallelEnv):
             fwd_cell = self.core_env.grid.get(*fwd_pos)
             
             if fwd_cell is None or fwd_cell.can_overlap():
-                self.core_env.grid.set(*pos, None)
                 self.agent_positions[agent] = fwd_pos
-                self.core_env.grid.set(*fwd_pos, self.agent_objects[agent])
                 
                 if fwd_cell is not None and fwd_cell.type == "goal":
                     for a in self.agents:
@@ -273,9 +293,8 @@ class MultiAgentBoxPushEnv(ParallelEnv):
                 fwd_fwd_cell = self.core_env.grid.get(*fwd_fwd_pos)
                 if fwd_fwd_cell is None or fwd_fwd_cell.can_overlap():
                     self.core_env.grid.set(*fwd_fwd_pos, fwd_cell)
-                    self.core_env.grid.set(*pos, None)
+                    self.core_env.grid.set(*fwd_pos, None)
                     self.agent_positions[agent] = fwd_pos
-                    self.core_env.grid.set(*fwd_pos, self.agent_objects[agent])
 
         if self.steps >= self.max_steps:
             for a in self.agents:
