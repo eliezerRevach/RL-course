@@ -1,0 +1,17 @@
+Question 1: 
+How does the `(push-big)` strict action constraint enforce that exactly two adjacent agents push the large box? What happens if three agents try to push it in the RL environment vs the PDDL domain?**
+
+Answer:
+Enforcing exact two agents constraint in PDDL
+In the generated `pddl/domain.pddl` file, the constraint is strictly enforced through the action signature and preconditions. 
+The pushing actions (e.g., `push-big-up`, `push-big-down`, `push-big-right`, `push-big-left`) explicitly accept exactly two agent variables (`?a1` and `?a2`) as parameters. 
+The preconditions mandate that these two distinctive agents must be positioned at locational coordinates perfectly aligned adjacent to the two halves of the large box (`?boxloc1` and `?boxloc2`) in the chosen pushing direction. 
+Because the parameters expect exactly two agents, the logical plan fundamentally requires the cooperation of exactly two validly positioned agents to satisfy the preconditions and trigger the effect.
+
+What happens if three agents try to push?
+In the PDDL domain: The PDDL `push-big` action allows for exactly two agents, so the symbolic planner will merely assign two of the valid agents to the `?a1` and `?a2` parameters to perform the action. The third agent will be logically ignored by this specific action and left behind, possibly performing a "wait" or different action in that plan step.
+
+
+In the PettingZoo/MiniGrid RL environment: If we examine the step logic in `environment/multi_agent_env.py`, the condition to push a big box is evaluated as `len(pushers) >= 2` and `len(dirs) == 1`. This checks that *at least* two agents are pushing, and that all agents attempting to push are facing the exact same direction. Consequently, if three agents attempt to push the big box simultaneously in the same valid direction (since overlapping agents is allowed), the RL environment will accept the action, move the large box, and move all three agent entities into the block's previous spatial coordinates simultaneously.
+
+
