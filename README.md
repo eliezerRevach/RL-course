@@ -46,7 +46,7 @@ Here is an overview of the core files in this repository and what they do:
     The heart of the simulation! This defines the `MultiAgentBoxPushEnv` class, inheriting from PettingZoo's `ParallelEnv`. It handles the core physics: small box pushes, two-agent joint Big Box pushes, grid overlaps, and generating visual frames for the agents.
 *   **`environment/box_push_env.py`**
     A simpler, single-agent Gym environment (used for basic training and earlier exercises before moving to multi-agent).
-*   **`environment/custom_objects.py`**
+*   **`environment/objects.py`**
     Defines the visual rendering rules for our custom grid objects (`AgentObj`, `SmallBox`, `BigBox`) using standard PyGame polygon rendering metrics.
 *   **`environment/wrappers.py`**
     Contains advanced RL wrappers to increase difficulty:
@@ -71,10 +71,10 @@ Here is an overview of the core files in this repository and what they do:
 
 **IMPORTANT:** When working on your assignments, you must create a new branch for each exercise. Your branch name **must** follow this format:
 
-`student-{firstname}-{exercise}`
+`student-{firstname}-{lastname}-{exercise}`
 
 For example:
-- `student-yossi-ex1`
-- `student-sarah-ex2`
+- `student-yossi-cohen-ex1`
+- `student-sarah-levi-ex2`
 
 Please ensure you adhere to this naming convention, as it will be used for grading and tracking your progress.

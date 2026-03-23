@@ -1,44 +1,98 @@
-# Exercise 1: Multi-Agent Classical Planning (PDDL) with PettingZoo
-Welcome to the first exercise of the Reinforcement Learning & Planning course!
+# מטלת תכנות 1 — Box Pushing דטרמיניסטי
 
-## 🎯 Objective
-In this assignment, you will bridge the gap between abstract Logical Planning (PDDL) and a concrete Multi-Agent Reinforcement Learning (MARL) environment (PettingZoo/MiniGrid). You will explore a custom GridWorld where multiple agents must cooperate to solve physical puzzles.
+ברוכים הבאים למטלה הראשונה בקורס Reinforcement Learning & Planning!
 
-## 📦 The Environment
-The environment (`environment/multi_agent_env.py`) provides a 2D tile-based grid containing:
-* **Agents (`A`)**: Red and Green triangles that can rotate and move. Multiple agents can overlap on the same tile.
-* **Small Boxes (`B`)**: Yellow boxes. They can be pushed by a **single agent** moving forward into them.
-* **Big Boxes (`C`)**: Purple boxes (occupying two grid cells). They can **only** be pushed if **two agents** stand behind the two halves and push forward **simultaneously in the exact same direction**.
-* **Goal (`G`)**: The objective tile. To win, an agent or a box must reach the Goal.
+## 🎯 תיאור המטלה
 
-### Part 1: Exploration
-Run the provided `simulate.py` script.
+עליך לייצר בעזרת LLM לבחירתך קובץ PDDL המתאר את בעיית Box Pushing.
+
+בבעיה יש **שני סוכנים** שנמצאים בעולם grid. הם יכולים לנוע בכל אחד מארבעת הכיוונים, בהנחה שהמשבצת שאליה הם נעים פנויה ממכשולים (אפשר לנוע למשבצת שבה יש סוכן אחר). הם גם יכולים לדחוף קופסה בכל אחד מהכיוונים כשהם עומדים בצד המתאים של הקופסה והמשבצת אליה הם רוצים לדחוף את הקופסה פנויה. בעקבות הדחיפה הקופסה והסוכן זזים. לדוגמה, אם הסוכן מימין לקופסה והמשבצת משמאל לקופסה פנויה, הסוכן יכול לדחוף שמאלה. אחרי הדחיפה, הסוכן יזוז משבצת שמאלה למקום שהקופסה היתה, והקופסה גם תזוז משבצת שמאלה.
+
+בבעיה יש **3 קופסאות**: שתי קופסאות רגילות ואחת כבדה.
+- כדי לדחוף **קופסה רגילה** — מספיק סוכן אחד.
+- כדי לדחוף **קופסה כבדה** — יש צורך בדחיפה משותפת של שני הסוכנים באותו כיוון.
+
+**לסיכום:** עולם גריד שיכול להכיל מכשולים ובו 2 קופסאות רגילות וקופסה כבדה. הקופסאות תופסות משבצת כל אחת. בעולם יש פעולת תזוזה לכל כיוון שמקבלת כפרמטר את הסוכן. כמו כן, יש פעולת דחיפה רגילה בכל כיוון שמקבלת כפרמטר את הסוכן, ופעולת דחיפה משותפת לכל כיוון שמקבלת שני סוכנים שונים כפרמטר.
+
+עליכם ליצור גם קובץ **Domain** וגם קובץ **Problem** על ידי זה שתסבירו למודל השפה את העולם. ניתן גם לתת לו ציור שמתאר את מצב ההתחלה או להסביר במילים. תנאי המטרה יתייחס **רק למיקום הקופסאות**.
+
+עליכם להתקין ולהריץ את אלגוריתם התכנון ולראות שהתוכנית המתקבלת אכן פותרת את הבעיה על ידי זה שתספקו אותה לסימולטור ותראו שהוא איננו מחזיר שגיאה ומגיע למצב מטרה.
+
+---
+
+## 🚀 הגדרת סביבת העבודה
+
+### שלב 1: שכפול ה-Repository
+
+פתחו טרמינל, צרו תיקייה לקורס, ואז הריצו:
+
 ```bash
-python3 simulate.py
+git clone https://github.com/ronberg-bgu/RL-course.git
+cd RL-course
 ```
-This script initializes the environment and selects random actions for the agents using the standard PettingZoo `ParallelEnv` API (`env.step(actions_dict)`). Notice that random actions almost never solve the BigBox physical constraints!
 
-### Part 2: PDDL Translation Layer
-Open `environment/pddl_extractor.py`. This script is responsible for reading the true current state of the 2D array and translating it into mathematical predicates:
-* `(agent-at agent_0 loc_1_1)`
-* `(box-at box_0 loc_2_2)`
-* `(bigbox-at bbig_1 loc_2_3 loc_3_3)`
-* `(clear loc_1_2)`
+### שלב 2: הקמת סביבה וירטואלית והתקנת תלויות
 
-**Question 1:** Read the generated `pddl/domain.pddl` file. How does the `(push-big)` strict action constraint enforce that exactly two adjacent agents push the large box? What happens if three agents try to push it in the RL environment vs the PDDL domain?
+```bash
+python3 -m venv venv
+source venv/bin/activate          # macOS / Linux
+# venv\Scripts\activate           # Windows
+pip install -r requirements.txt
+```
 
-### Part 3: Solving & Execution
-We have provided a planner utilizing the `pyperplan` PDDL engine to generate an optimal logical action plan. The script `visualize_plan.py` acts as the bridge: it calls the planner, translates the symbolic output `push-big(agent_0, agent_1, loc...)` back into PettingZoo integer actions (`0=Left, 1=Right, 2=Forward`), and executes them instantly in the engine.
+### שלב 3: בדיקת הסביבה — הרצת הסימולציה הויזואלית
 
-Run:
+כדי לוודא שהכל עובד, הריצו:
+
 ```bash
 python3 visualize_plan.py
 ```
 
-**Your Programming Task:** 
-1. Create a new custom map (A Python list of strings, just like `ex2_map`). It should be uniquely complex, containing at least 3 walls forming a corridor, 2 agents, 1 BigBox, and 1 SmallBox.
-2. Write a script `hw1_solution.py` that imports your new map, calls `generate_pddl_for_env()` to automatically create the PDDL text files, and then calls `solve_pddl()`.
-3. Instead of simply visualizing it, write a loop that steps the `PettingZoo` environment exactly according to the logical plan, printing the total accumulated `rewards` dictionary after the maze is solved.
+הסקריפט טוען מפה מוגדרת מראש, מייצר קבצי PDDL, מפעיל את המתכנן (Fast Downward), ומציג את הפתרון ויזואלית בחלון pygame.
 
-## 📤 Submission
-Submit your `hw1_solution.py` file, along with a short text or PDF file answering **Question 1**, and containing a paste of your terminal output proving your agents successfully pushed the BigBox and reached the Goal.
+### שלב 4: יצירת Branch למטלה זו
+
+**חשוב:** יש ליצור branch בפורמט:
+
+```bash
+git checkout -b student-{firstname}-{lastname}-ex1
+```
+
+לדוגמה: `student-yossi-cohen-ex1`, `student-sarah-levi-ex1`
+
+שמות ה-branch ישמשו לצורך מעקב וציון.
+
+### שלב 5: הגשה
+
+בסיום, דחפו את ה-branch ופתחו Pull Request ב:
+[https://github.com/ronberg-bgu/RL-course](https://github.com/ronberg-bgu/RL-course)
+
+---
+
+## 📋 מפרט PDDL — שמות מדויקים לשימוש עם הסימולטור
+
+כדי שקובצי ה-PDDL שתייצרו יעבדו ישירות עם הסימולטור, יש להשתמש בדיוק בשמות ובפורמטים הבאים.
+
+### טיפוסים (Types)
+
+```
+agent   location   box   bigbox
+```
+
+### הערה חשובה על `push-big`
+
+הקופסה הכבדה תמיד מתוארת כשני מיקומים `?boxloc1` `?boxloc2`.
+הסדר: `boxloc1` הוא תמיד **השמאלי** (לדחיפת שמאל/ימין) או **העליון** (לדחיפת מעלה/מטה).
+
+### תנאי מטרה
+
+מכיוון שמיקומי תאי ה-goal ידועים מראש מהמפה, תנאי המטרה מציין ישירות את מיקום הקופסאות. לדוגמה:
+
+```lisp
+(:goal (and
+    (box-at box_0 loc_3_5)
+    (box-at box_1 loc_4_5)
+))
+```
+
+תנאי המטרה יתייחס **רק למיקום הקופסאות** — לא למיקום הסוכנים.
