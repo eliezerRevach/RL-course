@@ -46,7 +46,7 @@ Here is an overview of the core files in this repository and what they do:
     The heart of the simulation! This defines the `MultiAgentBoxPushEnv` class, inheriting from PettingZoo's `ParallelEnv`. It handles the core physics: small box pushes, two-agent joint Big Box pushes, grid overlaps, and generating visual frames for the agents.
 *   **`environment/box_push_env.py`**
     A simpler, single-agent Gym environment (used for basic training and earlier exercises before moving to multi-agent).
-*   **`environment/custom_objects.py`**
+*   **`environment/objects.py`**
     Defines the visual rendering rules for our custom grid objects (`AgentObj`, `SmallBox`, `BigBox`) using standard PyGame polygon rendering metrics.
 *   **`environment/wrappers.py`**
     Contains advanced RL wrappers to increase difficulty:
@@ -71,10 +71,44 @@ Here is an overview of the core files in this repository and what they do:
 
 **IMPORTANT:** When working on your assignments, you must create a new branch for each exercise. Your branch name **must** follow this format:
 
-`student-{firstname}-{exercise}`
+`student-{firstname}-{lastname}-{exercise}`
 
 For example:
-- `student-yossi-ex1`
-- `student-sarah-ex2`
+- `student-yossi-cohen-ex1`
+- `student-sarah-levi-ex2`
 
 Please ensure you adhere to this naming convention, as it will be used for grading and tracking your progress.
+
+## 📬 Submission Requirements (Exercise 1)
+
+Submission consists of **two parts** — both are required for a complete grade.
+
+### Part A — Pull Request on GitHub
+
+When you open a Pull Request, your branch must include all of the following files:
+
+| File | Description |
+|------|-------------|
+| `llm_pipeline.py` (or similar name) | Your pipeline script that queries the LLM, generates the PDDL files, and runs the planner |
+| `pddl/domain.pddl` | The generated PDDL domain file |
+| `pddl/problem.pddl` | The generated PDDL problem file |
+| `pddl_to_map.py` (or similar name) | A script that parses your `domain.pddl` / `problem.pddl` and translates them back into an ASCII map recognized by the visualizer |
+| `planner_output.txt` | The **full terminal log** from running the planner (Fast Downward output) |
+
+> **How to capture the terminal log:**
+> ```bash
+> python3 visualize_plan.py 2>&1 | tee planner_output.txt
+> ```
+> This prints to the terminal **and** saves everything to `planner_output.txt` simultaneously.
+
+### Part B — Live Demo (In-Person Presentation)
+
+In addition to the Pull Request, you will **present your work live in front of the course instructor**.
+
+During the demo you are expected to:
+1. Run your full pipeline end-to-end from the terminal.
+2. Show the planner finding a valid plan.
+3. Run the visual simulator and demonstrate the agents reaching the goal state on **your** map.
+4. Explain your prompting strategy — how you described the world to the LLM and what design choices you made.
+
+> **No submission is considered complete without the live demo.**

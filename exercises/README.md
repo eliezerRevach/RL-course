@@ -1,44 +1,153 @@
-# Exercise 1: Multi-Agent Classical Planning (PDDL) with PettingZoo
-Welcome to the first exercise of the Reinforcement Learning & Planning course!
+# Assignment 1 — Deterministic Box Pushing with Classical Planning
 
-## 🎯 Objective
-In this assignment, you will bridge the gap between abstract Logical Planning (PDDL) and a concrete Multi-Agent Reinforcement Learning (MARL) environment (PettingZoo/MiniGrid). You will explore a custom GridWorld where multiple agents must cooperate to solve physical puzzles.
+Welcome to the first programming assignment in the Reinforcement Learning & Planning course!
 
-## 📦 The Environment
-The environment (`environment/multi_agent_env.py`) provides a 2D tile-based grid containing:
-* **Agents (`A`)**: Red and Green triangles that can rotate and move. Multiple agents can overlap on the same tile.
-* **Small Boxes (`B`)**: Yellow boxes. They can be pushed by a **single agent** moving forward into them.
-* **Big Boxes (`C`)**: Purple boxes (occupying two grid cells). They can **only** be pushed if **two agents** stand behind the two halves and push forward **simultaneously in the exact same direction**.
-* **Goal (`G`)**: The objective tile. To win, an agent or a box must reach the Goal.
+## 🎯 Assignment Description
 
-### Part 1: Exploration
-Run the provided `simulate.py` script.
+Your task is to use an **LLM of your choice** to generate a PDDL file that describes the Box Pushing problem.
+
+The world contains **two agents** moving on a 2D grid. Each agent can move in any of the four directions, as long as the target cell is not an obstacle (agents may share the same cell). Agents can also **push a box** in any direction when standing on the appropriate side of it, provided the destination cell is free. After a push, both the agent and the box move one cell in that direction.
+
+The problem contains **3 boxes**: two regular boxes and one heavy box.
+- To push a **regular box** — one agent is enough.
+- To push the **heavy box** — both agents must push simultaneously from the **same cell** in the **same direction**.
+
+**In summary:** A grid world (possibly with obstacles) containing 2 regular boxes and 1 heavy box. The world has a `move` action (per agent), a `push-small` action (single agent, per direction), and a `push-heavy` action (two agents, per direction). The goal condition refers **only to the final positions of the boxes**, not the agents.
+
+You must generate both a **Domain file** and a **Problem file** by describing the world to your LLM. You may provide a drawing of the initial state or a natural language description. The goal condition should refer **only to box locations**.
+
+You must install and run the classical planner and verify that the resulting plan actually solves the problem by supplying it to the simulator and confirming it reaches the goal state without errors.
+
+---
+
+## 🚀 Environment Setup
+
+### Step 1: Clone the Repository
+
+Open a terminal, navigate to your course folder, and run:
+
 ```bash
-python3 simulate.py
+git clone https://github.com/ronberg-bgu/RL-course.git
+cd RL-course
 ```
-This script initializes the environment and selects random actions for the agents using the standard PettingZoo `ParallelEnv` API (`env.step(actions_dict)`). Notice that random actions almost never solve the BigBox physical constraints!
 
-### Part 2: PDDL Translation Layer
-Open `environment/pddl_extractor.py`. This script is responsible for reading the true current state of the 2D array and translating it into mathematical predicates:
-* `(agent-at agent_0 loc_1_1)`
-* `(box-at box_0 loc_2_2)`
-* `(bigbox-at bbig_1 loc_2_3 loc_3_3)`
-* `(clear loc_1_2)`
+### Step 2: Create a Virtual Environment and Install Dependencies
 
-**Question 1:** Read the generated `pddl/domain.pddl` file. How does the `(push-big)` strict action constraint enforce that exactly two adjacent agents push the large box? What happens if three agents try to push it in the RL environment vs the PDDL domain?
+```bash
+python3 -m venv venv
+source venv/bin/activate          # macOS / Linux
+# venv\Scripts\activate           # Windows
+pip install -r requirements.txt
+```
 
-### Part 3: Solving & Execution
-We have provided a planner utilizing the `pyperplan` PDDL engine to generate an optimal logical action plan. The script `visualize_plan.py` acts as the bridge: it calls the planner, translates the symbolic output `push-big(agent_0, agent_1, loc...)` back into PettingZoo integer actions (`0=Left, 1=Right, 2=Forward`), and executes them instantly in the engine.
+### Step 3: Verify the Environment — Run the Visual Simulation
 
-Run:
+To make sure everything works, run:
+
 ```bash
 python3 visualize_plan.py
 ```
 
-**Your Programming Task:** 
-1. Create a new custom map (A Python list of strings, just like `ex2_map`). It should be uniquely complex, containing at least 3 walls forming a corridor, 2 agents, 1 BigBox, and 1 SmallBox.
-2. Write a script `hw1_solution.py` that imports your new map, calls `generate_pddl_for_env()` to automatically create the PDDL text files, and then calls `solve_pddl()`.
-3. Instead of simply visualizing it, write a loop that steps the `PettingZoo` environment exactly according to the logical plan, printing the total accumulated `rewards` dictionary after the maze is solved.
+This script loads a predefined map, generates PDDL files, invokes the Fast Downward planner, and displays the solution visually in a pygame window.
 
-## 📤 Submission
-Submit your `hw1_solution.py` file, along with a short text or PDF file answering **Question 1**, and containing a paste of your terminal output proving your agents successfully pushed the BigBox and reached the Goal.
+### Step 4: Write a PDDL → ASCII Map Translator
+
+As part of the assignment, you must write a **Python script** that reads the `domain.pddl` and `problem.pddl` files you generated (via the LLM) and translates them back into an ASCII map in the format the simulator accepts.
+
+Your code should produce a list of strings like:
+
+```python
+ascii_map = [
+    "WWWWWWWW",
+    "W  A   W",
+    "W  B   W",
+    ...
+]
+```
+
+Then pass that map to the visual simulator (`visualize_plan.py`) to watch the plan execute on your board.
+
+This is the step that bridges your generated PDDL with the graphical environment — it must run without errors.
+
+### Step 5: Create a Branch for This Assignment
+
+**Important:** You must create a branch in the following format:
+
+```bash
+git checkout -b student-{firstname}-{lastname}-ex1
+```
+
+For example: `student-yossi-cohen-ex1`, `student-sarah-levi-ex1`
+
+Branch names are used for tracking and grading.
+
+### Step 6: Submit
+
+When finished, push your branch and open a Pull Request at:
+[https://github.com/ronberg-bgu/RL-course](https://github.com/ronberg-bgu/RL-course)
+
+---
+
+## 📬 Submission Requirements
+
+Your submission consists of **two parts**:
+
+### Part A — Pull Request on GitHub
+
+Your branch must include all of the following files:
+
+| File | Description |
+|------|-------------|
+| `llm_pipeline.py` (or similar name) | The pipeline code that queries the LLM, builds the PDDL files, and runs the planner |
+| `pddl/domain.pddl` | The generated PDDL domain file |
+| `pddl/problem.pddl` | The generated PDDL problem file |
+| `pddl_to_map.py` (or similar name) | Script that parses your PDDL files and translates them back into an ASCII map for the visualizer |
+| `planner_output.txt` | The **full terminal log** of the planner run (Fast Downward output) |
+
+> **How to save the terminal log:**
+> ```bash
+> python3 visualize_plan.py 2>&1 | tee planner_output.txt
+> ```
+> This command prints to the terminal **and** saves everything to `planner_output.txt` at the same time.
+
+### Part B — Live Demo (In-Person Presentation)
+
+In addition to the Pull Request, **you will present your work live in front of the course instructor.**
+
+During the demo you are expected to:
+1. Run your full pipeline end-to-end from the terminal.
+2. Show the planner finding a valid plan.
+3. Run the visual simulator and demonstrate the agents reaching the goal state on **your** map.
+4. Explain your prompting strategy — how you described the world to the LLM and what choices you made.
+
+> **No submission is considered complete without the live demo.**
+
+---
+
+## 📋 PDDL Specification — Exact Names for Simulator Compatibility
+
+For your PDDL files to work directly with the simulator, you must use **exactly** the following names and formats.
+
+### Types
+
+```
+agent   location   box   heavybox
+```
+
+### Important Note on `push-heavy`
+
+The heavy box is always described with a single location `?boxloc`.
+Both agents must be at the **same cell** (`?from`) adjacent to the box, pushing in the same direction.
+
+### Goal Condition
+
+Since goal cell positions are known in advance from the map, the goal condition specifies box locations directly. For example:
+
+```lisp
+(:goal (and
+    (box-at box_0 loc_3_5)
+    (box-at box_1 loc_4_5)
+))
+```
+
+The goal condition refers **only to box locations** — not to agent positions.

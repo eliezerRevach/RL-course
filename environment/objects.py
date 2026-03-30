@@ -17,13 +17,13 @@ class SmallBox(Box):
         """Boxes cannot be picked up, only pushed"""
         return False
 
-class BigBox(Box):
+class HeavyBox(Box):
     """
-    A big box that requires two agents pushing in the exact same direction simultaneously to move.
+    A heavy box that requires two agents pushing from the exact same grid space simultaneously.
     """
     def __init__(self, color="purple"):
         super().__init__(color)
-        self.box_size = "big"
+        self.box_size = "heavy"
 
     def can_overlap(self):
         """Objects can't overlap with the box"""

@@ -18,16 +18,16 @@ def extract_target_pos(pddl_action):
     
     if action_name.startswith('win'):
         return {}
-    elif action_name.startswith('push-big') and len(params) >= 6:
+    elif action_name.startswith('push-heavy') and len(params) >= 5:
+        # push-heavy(?a1, ?a2, ?from, ?boxloc, ?toloc, ?h)
         a1, a2 = params[0], params[1]
-        t1, t2 = params[4], params[5] # boxloc1, boxloc2 are the targets for the agents
+        target_loc = params[3] # boxloc is the target for both pushing agents
         
-        parts1 = t1.split('_')
-        parts2 = t2.split('_')
-        if len(parts1) == 3:
-            agent_targets[a1] = (int(parts1[1]), int(parts1[2]))
-        if len(parts2) == 3:
-            agent_targets[a2] = (int(parts2[1]), int(parts2[2]))
+        parts = target_loc.split('_')
+        if len(parts) == 3:
+            tgt = (int(parts[1]), int(parts[2]))
+            agent_targets[a1] = tgt
+            agent_targets[a2] = tgt
     elif len(params) >= 3:
         # move or push-small
         agent_name = params[0]
@@ -92,12 +92,20 @@ def visualize_pddl_plan(ascii_map, domain_file, problem_file):
         agents = list(agent_targets.keys())
         agent_action_queues = {a: get_required_actions(env, a, agent_targets[a]) for a in agents}
         
+        # Pad queues with None so all agents execute their final 'forward' simultaneously
+        if agent_action_queues:
+            max_len = max(len(q) for q in agent_action_queues.values())
+            for a in agents:
+                agent_action_queues[a] = [None] * (max_len - len(agent_action_queues[a])) + agent_action_queues[a]
+        
         # Iterate until all agents have exhausted their rotation/forward actions
         while any(len(q) > 0 for q in agent_action_queues.values()):
             step_actions = {}
             for a in agents:
                 if len(agent_action_queues[a]) > 0:
-                    step_actions[a] = agent_action_queues[a].pop(0)
+                    act = agent_action_queues[a].pop(0)
+                    if act is not None:
+                        step_actions[a] = act
             
             env.step(step_actions)
             env.core_env.render()
@@ -118,11 +126,11 @@ if __name__ == "__main__":
     # We test visualizer on a large map with a joint BigBox push
     large_map = [
         "WWWWWWWW",
-        "W  AA  W",
-        "W  CC  W",
+        "W   AA W",
+        "W   C  W",
         "W      W",
         "W      W",
-        "W  G   W",
+        "W   G  W",
         "WWWWWWWW"
     ]
     

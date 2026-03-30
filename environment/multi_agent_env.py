@@ -8,7 +8,7 @@ from minigrid.core.world_object import Wall, Goal, WorldObj
 from minigrid.utils.rendering import fill_coords, point_in_circle, point_in_triangle, rotate_fn
 from minigrid.core.constants import COLORS
 from minigrid.minigrid_env import MiniGridEnv
-from environment.objects import SmallBox, BigBox
+from environment.objects import SmallBox, HeavyBox
 
 class AgentObj(WorldObj):
     """
@@ -114,35 +114,9 @@ class MultiAgentBoxPushEnv(ParallelEnv):
         self.agent_positions = {}
         self.agent_dirs = {}
         self.agent_objects = {}
-        self.big_boxes = {}
         
         agent_idx = 0
         colors = ["green", "red", "blue", "purple"]
-        
-        grid_C = {}
-        for y, row in enumerate(self.ascii_map):
-            for x, char in enumerate(row):
-                if char == 'C':
-                    grid_C[(x, y)] = True
-                    
-        visited = set()
-        c_groups = {}
-        c_count = 0
-        for pos in grid_C:
-            if pos not in visited:
-                c_count += 1
-                q = [pos]
-                visited.add(pos)
-                self.big_boxes[c_count] = []
-                while q:
-                    cx, cy = q.pop(0)
-                    c_groups[(cx, cy)] = c_count
-                    self.big_boxes[c_count].append((cx, cy))
-                    for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
-                        nx, ny = cx + dx, cy + dy
-                        if (nx, ny) in grid_C and (nx, ny) not in visited:
-                            visited.add((nx, ny))
-                            q.append((nx, ny))
         
         for y, row in enumerate(self.ascii_map):
             for x, char in enumerate(row):
@@ -153,9 +127,7 @@ class MultiAgentBoxPushEnv(ParallelEnv):
                 elif char == 'B':
                     self.core_env.grid.set(x, y, SmallBox())
                 elif char == 'C':
-                    b = BigBox()
-                    b.group_id = c_groups[(x, y)]
-                    self.core_env.grid.set(x, y, b)
+                    self.core_env.grid.set(x, y, HeavyBox())
                 elif char == 'A':
                     agent_name = f"agent_{agent_idx}"
                     color = colors[agent_idx % len(colors)]
@@ -177,13 +149,21 @@ class MultiAgentBoxPushEnv(ParallelEnv):
         
         self.core_env.reset(seed=seed)
         
+        # Place agents in grid for initial render and correct obs
+        for agent in self.agents:
+            pos = self.agent_positions[agent]
+            self.core_env.grid.set(*pos, self.agent_objects[agent])
+            
         observations = {}
         for agent in self.agents:
             pos = self.agent_positions[agent]
             self.core_env.agent_pos = pos
             self.core_env.agent_dir = self.agent_dirs[agent]
             
+            # Temporarily hide agent from grid so it doesn't observe itself as an obstacle
+            self.core_env.grid.set(*pos, None)
             observations[agent] = self.core_env.gen_obs()
+            self.core_env.grid.set(*pos, self.agent_objects[agent])
             
         self.core_env.agent_pos = (-1, -1) # Reset back to dummy invisible space 
         
@@ -201,6 +181,13 @@ class MultiAgentBoxPushEnv(ParallelEnv):
         if not actions:
             self.agents = []
             return {}, {}, {}, {}, {}
+
+        # Clear agent objects from grid to prevent trailing clones
+        for agent in self.agents:
+            px, py = self.agent_positions[agent]
+            cell = self.core_env.grid.get(px, py)
+            if cell is self.agent_objects[agent]:
+                self.core_env.grid.set(px, py, None)
 
         # Pass 1: Gather Intents
         agent_intents = {}
@@ -220,58 +207,48 @@ class MultiAgentBoxPushEnv(ParallelEnv):
                 fwd_pos = (pos[0] + vec[0], pos[1] + vec[1])
                 agent_intents[agent] = {"target_pos": fwd_pos, "dir": d, "vec": vec}
 
-        # Pass 2: Joint Push Resolution
-        big_box_pushes = {}
+        # Pass 2: Heavy Push Resolution
+        heavy_box_pushes = {}
         for agent, intent in agent_intents.items():
             fwd_pos = intent["target_pos"]
             fwd_cell = self.core_env.grid.get(*fwd_pos)
-            if fwd_cell is not None and getattr(fwd_cell, "box_size", "") == "big":
-                group_id = getattr(fwd_cell, "group_id", None)
-                if group_id is not None:
-                    if group_id not in big_box_pushes:
-                        big_box_pushes[group_id] = []
-                    big_box_pushes[group_id].append(agent)
+            if fwd_cell is not None and getattr(fwd_cell, "box_size", "") == "heavy":
+                if fwd_pos not in heavy_box_pushes:
+                    heavy_box_pushes[fwd_pos] = []
+                heavy_box_pushes[fwd_pos].append((agent, intent))
                     
-        for group_id, pushers in big_box_pushes.items():
+        for box_pos, pushers in heavy_box_pushes.items():
             if len(pushers) >= 2:
-                # Require identical direction for both pushers
-                dirs = set(agent_intents[a]["dir"] for a in pushers)
-                if len(dirs) == 1:
+                # Require identical direction and IDENTICAL originating grid space for both pushers
+                # Since multiple agents can be on the same HeavyBox cell, we just verify they came from the same pos
+                origins = set(self.agent_positions[a] for a, i in pushers)
+                dirs = set(i["dir"] for a, i in pushers)
+                
+                if len(dirs) == 1 and len(origins) == 1:
                     push_dir = list(dirs)[0]
                     vec = DIR_TO_VEC[push_dir]
-                    parts = self.big_boxes[group_id]
                     
-                    clear_to_push = True
-                    for bx, by in parts:
-                        nx, ny = bx + vec[0], by + vec[1]
-                        if (nx, ny) not in parts: 
-                            n_cell = self.core_env.grid.get(nx, ny)
-                            if n_cell is not None and not n_cell.can_overlap():
-                                clear_to_push = False
-                                break
+                    nx, ny = box_pos[0] + vec[0], box_pos[1] + vec[1]
+                    n_cell = self.core_env.grid.get(nx, ny)
                     
-                    if clear_to_push:
-                        # Move BigBox components
-                        cells_to_move = {}
-                        for bx, by in parts:
-                            cells_to_move[(bx, by)] = self.core_env.grid.get(bx, by)
-                            self.core_env.grid.set(bx, by, None)
-                            
-                        new_parts = []
-                        for bx, by in parts:
-                            nx, ny = bx + vec[0], by + vec[1]
-                            self.core_env.grid.set(nx, ny, cells_to_move[(bx, by)])
-                            new_parts.append((nx, ny))
-                            
-                        self.big_boxes[group_id] = new_parts
+                    if n_cell is None or n_cell.can_overlap():
+                        # Move HeavyBox one cell
+                        bx, by = box_pos
+                        box_obj = self.core_env.grid.get(bx, by)
+                        self.core_env.grid.set(bx, by, None)
+                        self.core_env.grid.set(nx, ny, box_obj)
                         
-                        # Move the agents into their target blocks
-                        for a in pushers:
-                            tgt = agent_intents[a]["target_pos"]
-                            self.agent_positions[a] = tgt
+                        # Move all pushing agents
+                        for agent, _ in pushers:
+                            self.agent_positions[agent] = box_pos
+                            if n_cell is not None and n_cell.type == "goal":
+                                for a in self.agents:
+                                    rewards[a] = 1.0
+                                    terminations[a] = True
                             
-                            # Remove from remaining single movements queue
-                            del agent_intents[a]
+                        # Clear intents for successful pushers so they don't try to move again in Pass 3
+                        for agent, _ in pushers:
+                            del agent_intents[agent]
 
         # Pass 3: Process remaining individual forward movements
         for agent, intent in agent_intents.items():
