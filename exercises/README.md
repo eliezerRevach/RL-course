@@ -141,13 +141,14 @@ Both agents must be at the **same cell** (`?from`) adjacent to the box, pushing 
 
 ### Goal Condition
 
-Since goal cell positions are known in advance from the map, the goal condition specifies box locations directly. For example:
+The goal condition specifies the final required positions of all boxes directly. For example:
 
 ```lisp
 (:goal (and
-    (box-at box_0 loc_3_5)
+    (box-at box_0 loc_2_5)
     (box-at box_1 loc_4_5)
+    (heavybox-at hbx_0 loc_6_5)
 ))
 ```
 
-The goal condition refers **only to box locations** — not to agent positions.
+The goal condition refers **only to box and heavy box locations** — not to agent positions.

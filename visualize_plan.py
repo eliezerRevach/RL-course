@@ -126,11 +126,11 @@ if __name__ == "__main__":
     # We test visualizer on a large map with a joint BigBox push
     large_map = [
         "WWWWWWWW",
-        "W   AA W",
-        "W   C  W",
+        "W  AA  W",
+        "W B C  W",
         "W      W",
-        "W      W",
-        "W   G  W",
+        "W   B  W",
+        "W G G GW",
         "WWWWWWWW"
     ]
     
