@@ -52,24 +52,57 @@ This script loads a predefined map, generates PDDL files, invokes the Fast Downw
 
 ### Step 4: Write a PDDL → ASCII Map Translator
 
-As part of the assignment, you must write a **Python script** that reads the `domain.pddl` and `problem.pddl` files you generated (via the LLM) and translates them back into an ASCII map in the format the simulator accepts.
+As part of the assignment, you must write a **Python script** (`pddl_to_map.py`) that reads the `domain.pddl` and `problem.pddl` files you generated (via the LLM) and translates them back into an ASCII map in the format the simulator accepts.
 
-Your code should produce a list of strings like:
+The ASCII map uses the following characters:
+
+| Character | Meaning |
+|-----------|---------|
+| `W` | Wall |
+| `A` | Agent |
+| `B` | Small box |
+| `C` | Heavy box |
+| `G` | Goal cell |
+| ` ` | Empty cell |
+
+Your script should produce a list of strings like:
 
 ```python
 ascii_map = [
     "WWWWWWWW",
-    "W  A   W",
-    "W  B   W",
-    ...
+    "W  AA  W",
+    "W B C  W",
+    "W      W",
+    "W   B  W",
+    "W G G GW",
+    "WWWWWWWW"
 ]
 ```
 
-Then pass that map to the visual simulator (`visualize_plan.py`) to watch the plan execute on your board.
+### Step 5: Write `llm_pipeline.py` and Run End-to-End
 
-This is the step that bridges your generated PDDL with the graphical environment — it must run without errors.
+Your `llm_pipeline.py` must tie everything together. At minimum, when run, it should:
+1. Write (or embed) the LLM-generated `pddl/domain.pddl` and `pddl/problem.pddl`
+2. Call `pddl_to_map.py` to reconstruct the ASCII map
+3. Call the visualizer to solve and display the plan
 
-### Step 5: Create a Branch for This Assignment
+Here is the pattern to follow in your script:
+
+```python
+from visualize_plan import visualize_pddl_plan
+from pddl_to_map import parse_pddl_to_map   # your function name may differ
+
+ascii_map = parse_pddl_to_map("pddl/domain.pddl", "pddl/problem.pddl")
+visualize_pddl_plan(ascii_map, "pddl/domain.pddl", "pddl/problem.pddl")
+```
+
+To capture the full terminal log for submission:
+
+```bash
+python3 llm_pipeline.py 2>&1 | tee planner_output.txt
+```
+
+### Step 6: Create a Branch for This Assignment
 
 **Important:** You must create a branch in the following format:
 
@@ -81,7 +114,7 @@ For example: `student-yossi-cohen-ex1`, `student-sarah-levi-ex1`
 
 Branch names are used for tracking and grading.
 
-### Step 6: Submit
+### Step 7: Submit
 
 When finished, push your branch and open a Pull Request at:
 [https://github.com/ronberg-bgu/RL-course](https://github.com/ronberg-bgu/RL-course)
@@ -106,9 +139,9 @@ Your branch must include all of the following files:
 
 > **How to save the terminal log:**
 > ```bash
-> python3 visualize_plan.py 2>&1 | tee planner_output.txt
+> python3 llm_pipeline.py 2>&1 | tee planner_output.txt
 > ```
-> This command prints to the terminal **and** saves everything to `planner_output.txt` at the same time.
+> This command runs your pipeline, prints to the terminal **and** saves everything to `planner_output.txt` at the same time.
 
 ### Part B — Live Demo (In-Person Presentation)
 
@@ -126,7 +159,7 @@ During the demo you are expected to:
 
 ## 📋 PDDL Specification — Exact Names for Simulator Compatibility
 
-For your PDDL files to work directly with the simulator, you must use **exactly** the following names and formats.
+For your PDDL files to work directly with the simulator, you **must** use exactly the following names and formats.
 
 ### Types
 
@@ -134,14 +167,57 @@ For your PDDL files to work directly with the simulator, you must use **exactly*
 agent   location   box   heavybox
 ```
 
+### Predicates
+
+| Predicate | Meaning |
+|-----------|---------|
+| `(agent-at ?a - agent ?loc - location)` | Agent `?a` is at location `?loc` |
+| `(box-at ?b - box ?loc - location)` | Small box `?b` is at `?loc` |
+| `(heavybox-at ?h - heavybox ?loc - location)` | Heavy box `?h` is at `?loc` |
+| `(clear ?loc - location)` | Location `?loc` has no box on it |
+| `(adj ?l1 - location ?l2 - location)` | `?l1` and `?l2` are adjacent (bidirectional) |
+
+### Actions
+
+| Action | Parameters | Who moves |
+|--------|-----------|-----------|
+| `move` | `?a ?from ?to` | One agent moves to an adjacent empty cell |
+| `push-small` | `?a ?from ?boxloc ?toloc ?b` | One agent pushes a small box one cell |
+| `push-heavy` | `?a1 ?a2 ?from ?boxloc ?toloc ?h` | Two agents push the heavy box together |
+
+### Object Naming Convention
+
+| Object | Name format | Example |
+|--------|------------|---------|
+| Locations | `loc_X_Y` | `loc_3_2` |
+| Agents | `agent_0`, `agent_1` | — |
+| Small boxes | `box_0`, `box_1` | — |
+| Heavy box | `hbx_0` | — |
+
 ### Important Note on `push-heavy`
 
-The heavy box is always described with a single location `?boxloc`.
-Both agents must be at the **same cell** (`?from`) adjacent to the box, pushing in the same direction.
+The heavy box is 1×1. Both agents must be at the **same cell** (`?from`) adjacent to the box, pushing in the same direction simultaneously.
+
+```lisp
+(:action push-heavy
+  :parameters (?a1 - agent ?a2 - agent ?from - location ?boxloc - location ?toloc - location ?h - heavybox)
+  :precondition (and
+    (not (= ?a1 ?a2))
+    (agent-at ?a1 ?from) (agent-at ?a2 ?from)
+    (adj ?from ?boxloc) (heavybox-at ?h ?boxloc)
+    (adj ?boxloc ?toloc) (clear ?toloc))
+  :effect (and
+    (agent-at ?a1 ?boxloc) (agent-at ?a2 ?boxloc)
+    (not (agent-at ?a1 ?from)) (not (agent-at ?a2 ?from))
+    (clear ?from)
+    (heavybox-at ?h ?toloc) (not (heavybox-at ?h ?boxloc))
+    (not (clear ?toloc)))
+)
+```
 
 ### Goal Condition
 
-The goal condition specifies the final required positions of all boxes directly. For example:
+The goal condition specifies the final required positions of **all** boxes. For example:
 
 ```lisp
 (:goal (and
