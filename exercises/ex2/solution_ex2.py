@@ -155,28 +155,249 @@ def get_state(env) -> tuple:
 
 def build_transition_model(env):
     """
-    TODO — Build the full MDP transition model analytically.
+    Build the full MDP transition model analytically via BFS over reachable states.
 
-    This function should enumerate every reachable state and, for every state
-    and every joint action, return the list of (probability, next_state, reward)
-    triples that follow from the stochastic transition rules.
+    State = (a0_pos, a1_pos, box0_pos, box1_pos, heavy_pos)
+        - positions are (col, row) tuples
+        - agent directions are dropped (rotation is free/deterministic)
 
-    Suggested signature of the returned data structure:
+    Actions per agent = 4 directional moves (RIGHT=0, DOWN=1, LEFT=2, UP=3)
+        - mapped to MiniGrid DIR_TO_VEC convention
+        - joint_action = (a0_action, a1_action), 16 combinations total
 
+    Returns
+    -------
+    transitions : dict
         transitions[state][joint_action] = [(prob, next_state, reward), ...]
-
-    where joint_action is a tuple of per-agent actions, e.g. (2, 2) means
-    both agents move forward simultaneously.
-
-    Tips
-    ----
-    * Start with a *single*-agent, *single*-box toy map to validate your model
-      before scaling to the full assignment map.
-    * Use env.move_success_prob and env.push_success_prob for the probabilities.
-    * A state is terminal if all boxes are at their goal positions — you can
-      detect this by checking against the goal locations in the PDDL problem.
     """
-    raise NotImplementedError("TODO: implement build_transition_model")
+    from minigrid.core.constants import DIR_TO_VEC
+    from collections import deque
+
+    env.reset()
+
+    width, height = env.width, env.height
+    p_move  = env.move_success_prob          # 0.8
+    p_push  = env.push_success_prob          # 0.8
+    p_drift = (1.0 - p_move) / 2.0          # 0.1
+
+    # ── Read static grid layout ───────────────────────────────────────────────
+    walls      = set()
+    goal_cells = set()
+
+    for y in range(height):
+        for x in range(width):
+            cell = env.core_env.grid.get(x, y)
+            if cell is None:
+                continue
+            if cell.type == "wall":
+                walls.add((x, y))
+            elif cell.type == "goal":
+                goal_cells.add((x, y))
+
+    # ── Read initial object positions ─────────────────────────────────────────
+    agents = env.possible_agents
+    a0_init = env.agent_positions[agents[0]]
+    a1_init = env.agent_positions[agents[1]]
+
+    small_boxes, heavy_boxes = [], []
+    for y in range(height):
+        for x in range(width):
+            cell = env.core_env.grid.get(x, y)
+            if cell is not None and cell.type == "box":
+                if getattr(cell, "box_size", "") == "heavy":
+                    heavy_boxes.append((x, y))
+                else:
+                    small_boxes.append((x, y))
+
+    small_boxes.sort()
+    heavy_boxes.sort()
+    box0_init  = small_boxes[0] if len(small_boxes) > 0 else None
+    box1_init  = small_boxes[1] if len(small_boxes) > 1 else None
+    heavy_init = heavy_boxes[0] if heavy_boxes else None
+
+    # ── Helpers ───────────────────────────────────────────────────────────────
+
+    def in_bounds(pos):
+        return 0 <= pos[0] < width and 0 <= pos[1] < height
+
+    def is_terminal(state):
+        """Episode ends when ALL boxes are on goal cells."""
+        _, _, b0, b1, hb = state
+        return b0 in goal_cells and b1 in goal_cells and hb in goal_cells
+
+    def box_at(pos, state):
+        """Return which box is at pos, or None."""
+        _, _, b0, b1, hb = state
+        if pos == b0:  return "box0"
+        if pos == b1:  return "box1"
+        if pos == hb:  return "heavy"
+        return None
+
+    def passable_for_agent(pos, state, other_agent_pos):
+        """Can an agent step into pos (ignoring the moving agent itself)?"""
+        if not in_bounds(pos) or pos in walls:
+            return False
+        if box_at(pos, state) is not None:   # any box blocks
+            return False
+        if pos == other_agent_pos:
+            return False
+        return True
+
+    def agent_outcomes(agent_pos, direction, state, other_pos):
+        """
+        Enumerate (prob, new_agent_pos, new_b0, new_b1, new_hb) for one agent.
+
+        Rules
+        -----
+        - MOVE (target is empty/goal): stochastic 0.8/0.1/0.1
+        - PUSH-SMALL (target has small box, cell behind is free): stochastic p_push / (1-p_push)
+        - PUSH-HEAVY (single agent): no-op (heavy requires two agents)
+        - anything else (wall, out-of-bounds, blocked push): no-op (prob 1.0)
+        """
+        _, _, b0, b1, hb = state
+        vec    = DIR_TO_VEC[direction]
+        target = (agent_pos[0] + vec[0], agent_pos[1] + vec[1])
+
+        # ── wall / out-of-bounds ──────────────────────────────────────────────
+        if not in_bounds(target) or target in walls:
+            return [(1.0, agent_pos, b0, b1, hb)]
+
+        # ── other agent blocks ────────────────────────────────────────────────
+        if target == other_pos:
+            return [(1.0, agent_pos, b0, b1, hb)]
+
+        box_kind = box_at(target, state)
+
+        # ── single agent cannot push heavy box ───────────────────────────────
+        if box_kind == "heavy":
+            return [(1.0, agent_pos, b0, b1, hb)]
+
+        # ── small box push ────────────────────────────────────────────────────
+        if box_kind in ("box0", "box1"):
+            box_dest = (target[0] + vec[0], target[1] + vec[1])
+            can_push = (
+                in_bounds(box_dest)
+                and box_dest not in walls
+                and box_at(box_dest, state) is None
+                and box_dest != other_pos
+            )
+            if not can_push:
+                return [(1.0, agent_pos, b0, b1, hb)]
+
+            new_b0_s = box_dest if box_kind == "box0" else b0
+            new_b1_s = box_dest if box_kind == "box1" else b1
+            return [
+                (p_push,       target,    new_b0_s, new_b1_s, hb),
+                (1.0 - p_push, agent_pos, b0,       b1,       hb),
+            ]
+
+        # ── empty / goal cell: stochastic move ───────────────────────────────
+        left_vec  = DIR_TO_VEC[(direction - 1) % 4]
+        right_vec = DIR_TO_VEC[(direction + 1) % 4]
+        left_pos  = (agent_pos[0] + left_vec[0],  agent_pos[1] + left_vec[1])
+        right_pos = (agent_pos[0] + right_vec[0], agent_pos[1] + right_vec[1])
+
+        actual_left  = left_pos  if passable_for_agent(left_pos,  state, other_pos) else agent_pos
+        actual_right = right_pos if passable_for_agent(right_pos, state, other_pos) else agent_pos
+
+        # Merge duplicate destinations (e.g. both drifts blocked → agent stays)
+        pos_prob = {}
+        pos_prob[target]       = pos_prob.get(target,       0.0) + p_move
+        pos_prob[actual_left]  = pos_prob.get(actual_left,  0.0) + p_drift
+        pos_prob[actual_right] = pos_prob.get(actual_right, 0.0) + p_drift
+
+        return [(p, pos, b0, b1, hb) for pos, p in pos_prob.items()]
+
+    # ── BFS over reachable states ─────────────────────────────────────────────
+    DIRS = [0, 1, 2, 3]   # RIGHT, DOWN, LEFT, UP
+
+    initial_state = (a0_init, a1_init, box0_init, box1_init, heavy_init)
+    transitions   = {}
+    visited       = {initial_state}
+    queue         = deque([initial_state])
+
+    while queue:
+        state = queue.popleft()
+        transitions[state] = {}
+
+        if is_terminal(state):
+            continue   # absorbing — no outgoing transitions needed
+
+        a0p, a1p, b0, b1, hb = state
+
+        for a0_act in DIRS:
+            for a1_act in DIRS:
+                joint = (a0_act, a1_act)
+
+                vec0 = DIR_TO_VEC[a0_act]
+                vec1 = DIR_TO_VEC[a1_act]
+                t0   = (a0p[0] + vec0[0], a0p[1] + vec0[1])
+                t1   = (a1p[0] + vec1[0], a1p[1] + vec1[1])
+
+                # ── Heavy-box push: both agents same cell, same dir, target heavy ──
+                if (hb is not None
+                        and t0 == hb and t1 == hb
+                        and a0_act == a1_act
+                        and a0p == a1p):
+
+                    heavy_dest = (hb[0] + vec0[0], hb[1] + vec0[1])
+                    can_push   = (
+                        in_bounds(heavy_dest)
+                        and heavy_dest not in walls
+                        and heavy_dest not in (b0, b1)
+                    )
+                    if can_push:
+                        # Both agents move to where heavy box was
+                        s_succ = (hb, hb, b0, b1, heavy_dest)
+                        r_succ = 1.0 if is_terminal(s_succ) else 0.0
+                        outcomes = [
+                            (p_push,       s_succ, r_succ),
+                            (1.0 - p_push, state,  0.0),
+                        ]
+                        transitions[state][joint] = outcomes
+                        for _, ns, _ in outcomes:
+                            if ns not in visited:
+                                visited.add(ns)
+                                queue.append(ns)
+                        continue
+
+                # ── Independent agent outcomes ────────────────────────────────
+                a0_outs = agent_outcomes(a0p, a0_act, state, a1p)
+                a1_outs = agent_outcomes(a1p, a1_act, state, a0p)
+
+                # ── Combine: multiply probabilities, handle conflicts ──────────
+                combined = {}
+                for (p0, na0, nb0_0, nb1_0, nhb_0) in a0_outs:
+                    for (p1, na1, nb0_1, nb1_1, nhb_1) in a1_outs:
+
+                        # Conflict: both agents try to move to the same cell → both stay
+                        final_a0, final_a1 = na0, na1
+                        if na0 == na1 and na0 != a0p:
+                            final_a0, final_a1 = a0p, a1p
+
+                        # Merge box changes (each agent affects at most one box)
+                        final_b0 = nb0_0 if nb0_0 != b0 else nb0_1
+                        final_b1 = nb1_0 if nb1_0 != b1 else nb1_1
+                        final_hb = nhb_0 if nhb_0 != hb else nhb_1
+
+                        ns   = (final_a0, final_a1, final_b0, final_b1, final_hb)
+                        r    = 1.0 if is_terminal(ns) else 0.0
+                        prob = p0 * p1
+
+                        if ns in combined:
+                            combined[ns] = (combined[ns][0] + prob, r)
+                        else:
+                            combined[ns] = (prob, r)
+
+                outcomes = [(p, ns, r) for ns, (p, r) in combined.items()]
+                transitions[state][joint] = outcomes
+
+                for _, ns, _ in outcomes:
+                    if ns not in visited:
+                        visited.add(ns)
+                        queue.append(ns)
+
+    return transitions
 
 
 def modified_policy_iteration(
