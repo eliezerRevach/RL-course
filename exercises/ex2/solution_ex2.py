@@ -233,13 +233,11 @@ def build_transition_model(env):
         if pos == hb:  return "heavy"
         return None
 
-    def passable_for_agent(pos, state, other_agent_pos):
-        """Can an agent step into pos (ignoring the moving agent itself)?"""
+    def passable_for_agent(pos, state):
+        """Can an agent step into pos? Only walls and boxes block — agents don't."""
         if not in_bounds(pos) or pos in walls:
             return False
         if box_at(pos, state) is not None:   # any box blocks
-            return False
-        if pos == other_agent_pos:
             return False
         return True
 
@@ -262,9 +260,8 @@ def build_transition_model(env):
         if not in_bounds(target) or target in walls:
             return [(1.0, agent_pos, b0, b1, hb)]
 
-        # ── other agent blocks ────────────────────────────────────────────────
-        if target == other_pos:
-            return [(1.0, agent_pos, b0, b1, hb)]
+        # NOTE: other agent does NOT block — the env clears agent sprites from
+        # the grid before resolving movement, so agents can freely share a cell.
 
         box_kind = box_at(target, state)
 
@@ -279,7 +276,7 @@ def build_transition_model(env):
                 in_bounds(box_dest)
                 and box_dest not in walls
                 and box_at(box_dest, state) is None
-                and box_dest != other_pos
+                # agents don't block box destination either
             )
             if not can_push:
                 return [(1.0, agent_pos, b0, b1, hb)]
@@ -297,8 +294,8 @@ def build_transition_model(env):
         left_pos  = (agent_pos[0] + left_vec[0],  agent_pos[1] + left_vec[1])
         right_pos = (agent_pos[0] + right_vec[0], agent_pos[1] + right_vec[1])
 
-        actual_left  = left_pos  if passable_for_agent(left_pos,  state, other_pos) else agent_pos
-        actual_right = right_pos if passable_for_agent(right_pos, state, other_pos) else agent_pos
+        actual_left  = left_pos  if passable_for_agent(left_pos,  state) else agent_pos
+        actual_right = right_pos if passable_for_agent(right_pos, state) else agent_pos
 
         # Merge duplicate destinations (e.g. both drifts blocked → agent stays)
         pos_prob = {}
@@ -370,10 +367,9 @@ def build_transition_model(env):
                 for (p0, na0, nb0_0, nb1_0, nhb_0) in a0_outs:
                     for (p1, na1, nb0_1, nb1_1, nhb_1) in a1_outs:
 
-                        # Conflict: both agents try to move to the same cell → both stay
+                        # No conflict resolution needed — agents can share a cell
+                        # (the env clears agents from grid before movement)
                         final_a0, final_a1 = na0, na1
-                        if na0 == na1 and na0 != a0p:
-                            final_a0, final_a1 = a0p, a1p
 
                         # Merge box changes (each agent affects at most one box)
                         final_b0 = nb0_0 if nb0_0 != b0 else nb0_1
