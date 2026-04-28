@@ -155,28 +155,224 @@ def get_state(env) -> tuple:
 
 def build_transition_model(env):
     """
-    TODO — Build the full MDP transition model analytically.
+    Build the full MDP transition model analytically via BFS over reachable states.
 
-    This function should enumerate every reachable state and, for every state
-    and every joint action, return the list of (probability, next_state, reward)
-    triples that follow from the stochastic transition rules.
+    State = (a_min, a_max, b_min, b_max, heavy_pos)
+        Agents and small boxes are stored sorted (canonical form) so
+        (a1,a2) and (a2,a1) map to the same state — reduces state space ~4x.
 
-    Suggested signature of the returned data structure:
+    Joint action = (dir1, dir2)  dir in {0=RIGHT, 1=DOWN, 2=LEFT, 3=UP}
+        16 combinations total (4 per agent), actions are parallel.
 
+    All data comes from env — NOT from PDDL:
+        env.move_success_prob  → p_move (0.8)
+        env.push_success_prob  → p_push (0.8)
+        env.core_env.grid      → walls, goals
+        env.agent_positions    → initial agent positions
+        grid scan              → initial box positions
+
+    Returns
+    -------
+    transitions : dict
         transitions[state][joint_action] = [(prob, next_state, reward), ...]
-
-    where joint_action is a tuple of per-agent actions, e.g. (2, 2) means
-    both agents move forward simultaneously.
-
-    Tips
-    ----
-    * Start with a *single*-agent, *single*-box toy map to validate your model
-      before scaling to the full assignment map.
-    * Use env.move_success_prob and env.push_success_prob for the probabilities.
-    * A state is terminal if all boxes are at their goal positions — you can
-      detect this by checking against the goal locations in the PDDL problem.
+        reward = 1.0 when next_state is terminal, 0.0 otherwise
     """
-    raise NotImplementedError("TODO: implement build_transition_model")
+    from minigrid.core.constants import DIR_TO_VEC
+    from collections import deque
+
+    # ── Read everything from env ──────────────────────────────────────────────
+    env.reset()
+
+    p_move  = env.move_success_prob
+    p_push  = env.push_success_prob
+    p_drift = (1.0 - p_move) / 2.0
+
+    walls, goal_cells = set(), set()
+    for y in range(env.height):
+        for x in range(env.width):
+            cell = env.core_env.grid.get(x, y)
+            if cell is None:
+                continue
+            if cell.type == "wall":
+                walls.add((x, y))
+            elif cell.type == "goal":
+                goal_cells.add((x, y))
+
+    agents  = env.possible_agents
+    a0_init = env.agent_positions[agents[0]]
+    a1_init = env.agent_positions[agents[1]]
+
+    small_boxes, heavy_boxes = [], []
+    for y in range(env.height):
+        for x in range(env.width):
+            cell = env.core_env.grid.get(x, y)
+            if cell is not None and cell.type == "box":
+                (heavy_boxes if getattr(cell, "box_size", "") == "heavy"
+                 else small_boxes).append((x, y))
+    small_boxes.sort()
+    heavy_boxes.sort()
+
+    box0_init  = small_boxes[0] if len(small_boxes) > 0 else None
+    box1_init  = small_boxes[1] if len(small_boxes) > 1 else None
+    heavy_init = heavy_boxes[0] if heavy_boxes else None
+
+    # ── Helpers ───────────────────────────────────────────────────────────────
+
+    def set_agent_loc(a1, a2):
+        return tuple(sorted([a1, a2]))
+
+    def set_box_loc(b1, b2):
+        return tuple(sorted([b1, b2]))
+
+    def normalize(a1, a2, b1, b2, hb):
+        ag = set_agent_loc(a1, a2)
+        bx = set_box_loc(b1, b2)
+        return (ag[0], ag[1], bx[0], bx[1], hb)
+
+    def is_invalid(pos):
+        return (pos in walls or
+                pos[0] < 0 or pos[0] >= env.width or
+                pos[1] < 0 or pos[1] >= env.height)
+
+    def is_terminal(state):
+        _, _, b0, b1, hb = state
+        return b0 in goal_cells and b1 in goal_cells and hb in goal_cells
+
+    def box_on_vector(agent_pos, direction, state):
+        _, _, b0, b1, hb = state
+        vec    = DIR_TO_VEC[direction]
+        target = (agent_pos[0] + vec[0], agent_pos[1] + vec[1])
+        if target == b0:  return "box0"
+        if target == b1:  return "box1"
+        if target == hb:  return "heavy"
+        return None
+
+    def single_agent_outcomes(agent_pos, direction, state):
+        """
+        Returns [(prob, new_agent_pos, new_b0, new_b1, new_hb)].
+
+        Cases
+        -----
+        wall / out-of-bounds → no-op (1.0, same)
+        heavy in front       → no-op (single agent can't push heavy)
+        small box in front   → push: (p_push, success), (1-p_push, fail)
+        empty / goal         → stochastic move: (0.8, intended), (0.1, left), (0.1, right)
+        """
+        _, _, b0, b1, hb = state
+        vec    = DIR_TO_VEC[direction]
+        target = (agent_pos[0] + vec[0], agent_pos[1] + vec[1])
+
+        if is_invalid(target):
+            return [(1.0, agent_pos, b0, b1, hb)]
+
+        box = box_on_vector(agent_pos, direction, state)
+
+        # single agent cannot push heavy box
+        if box == "heavy":
+            return [(1.0, agent_pos, b0, b1, hb)]
+
+        # small box push
+        if box in ("box0", "box1"):
+            push_dest = (target[0] + vec[0], target[1] + vec[1])
+            if is_invalid(push_dest) or push_dest in (b0, b1, hb):
+                return [(1.0, agent_pos, b0, b1, hb)]
+            new_b0 = push_dest if box == "box0" else b0
+            new_b1 = push_dest if box == "box1" else b1
+            return [
+                (p_push,       target,    new_b0, new_b1, hb),
+                (1.0 - p_push, agent_pos, b0,     b1,     hb),
+            ]
+
+        # empty / goal: stochastic move (agents don't block each other)
+        l_vec = DIR_TO_VEC[(direction - 1) % 4]
+        r_vec = DIR_TO_VEC[(direction + 1) % 4]
+        l_pos = (agent_pos[0] + l_vec[0], agent_pos[1] + l_vec[1])
+        r_pos = (agent_pos[0] + r_vec[0], agent_pos[1] + r_vec[1])
+
+        def drift_ok(pos):
+            return not is_invalid(pos) and pos not in (b0, b1, hb)
+
+        actual_l = l_pos if drift_ok(l_pos) else agent_pos
+        actual_r = r_pos if drift_ok(r_pos) else agent_pos
+
+        pos_prob = {}
+        for pos, p in [(target, p_move), (actual_l, p_drift), (actual_r, p_drift)]:
+            pos_prob[pos] = pos_prob.get(pos, 0.0) + p
+        return [(p, pos, b0, b1, hb) for pos, p in pos_prob.items()]
+
+    def combine(outcomes_a1, outcomes_a2, state):
+        """
+        Cross-product of both agents' outcomes.
+        Multiply probs, extract only what changed per agent, normalize.
+        Sum probs for duplicate next_states.
+        """
+        _, _, b0, b1, hb = state
+        combined = {}
+        for (p1, na1, nb0_1, nb1_1, nhb_1) in outcomes_a1:
+            for (p2, na2, nb0_2, nb1_2, nhb_2) in outcomes_a2:
+                prob     = p1 * p2
+                final_b0 = nb0_1 if nb0_1 != b0 else nb0_2
+                final_b1 = nb1_1 if nb1_1 != b1 else nb1_2
+                final_hb = nhb_1 if nhb_1 != hb else nhb_2
+                ns       = normalize(na1, na2, final_b0, final_b1, final_hb)
+                combined[ns] = combined.get(ns, 0.0) + prob
+        return [(p, ns, 1.0 if is_terminal(ns) else 0.0)
+                for ns, p in combined.items()]
+
+    # ── BFS over reachable states ─────────────────────────────────────────────
+    DIRS          = [0, 1, 2, 3]
+    initial_state = normalize(a0_init, a1_init, box0_init, box1_init, heavy_init)
+    transitions   = {}
+    visited       = {initial_state}
+    queue         = deque([initial_state])
+
+    while queue:
+        state = queue.popleft()
+        transitions[state] = {}
+
+        if is_terminal(state):
+            continue                    # absorbing — no outgoing transitions
+
+        a0p, a1p, b0, b1, hb = state
+
+        for action1 in DIRS:
+            for action2 in DIRS:
+                joint = (action1, action2)
+                vec   = DIR_TO_VEC[action1]
+
+                # ── heavy box joint push ──────────────────────────────────────
+                if (a0p == a1p and
+                        action1 == action2 and
+                        box_on_vector(a0p, action1, state) == "heavy"):
+                    push_dest  = (hb[0] + vec[0], hb[1] + vec[1])
+                    push_valid = not is_invalid(push_dest) and push_dest not in (b0, b1)
+                    if push_valid:
+                        s_succ = normalize(hb, hb, b0, b1, push_dest)
+                        r_succ = 1.0 if is_terminal(s_succ) else 0.0
+                        transitions[state][joint] = [
+                            (p_push,       s_succ, r_succ),
+                            (1.0 - p_push, state,  0.0),
+                        ]
+                    else:
+                        transitions[state][joint] = [(1.0, state, 0.0)]
+
+                    for _, ns, _ in transitions[state][joint]:
+                        if ns not in visited:
+                            visited.add(ns)
+                            queue.append(ns)
+                    continue
+
+                # ── general case: parallel independent actions ────────────────
+                outcomes_a1 = single_agent_outcomes(a0p, action1, state)
+                outcomes_a2 = single_agent_outcomes(a1p, action2, state)
+                transitions[state][joint] = combine(outcomes_a1, outcomes_a2, state)
+
+                for _, ns, _ in transitions[state][joint]:
+                    if ns not in visited:
+                        visited.add(ns)
+                        queue.append(ns)
+
+    return transitions
 
 
 def modified_policy_iteration(
@@ -202,7 +398,60 @@ def modified_policy_iteration(
     policy : dict  state -> joint_action
     V      : dict  state -> float
     """
-    raise NotImplementedError("TODO: implement modified_policy_iteration")
+    # ── Build transition model from Part 1 ───────────────────────────────────
+    print("Building transition model...")
+    transitions = build_transition_model(env)
+    all_states  = list(transitions.keys())
+    print(f"  {len(all_states)} reachable states found.")
+
+    # ── Helpers ───────────────────────────────────────────────────────────────
+
+    def is_terminal(state):
+        return transitions[state] == {}   # absorbing: no outgoing transitions
+
+    def q_value(state, action, V):
+        """Expected value of taking action in state under V."""
+        return sum(prob * (r + gamma * V.get(s_, 0.0))
+                   for prob, s_, r in transitions[state][action])
+
+    # ── Init ─────────────────────────────────────────────────────────────────
+    V      = {s: 0.0    for s in all_states}
+    policy = {s: (0, 0) for s in all_states}   # arbitrary initial joint action
+
+    # ── Main loop ─────────────────────────────────────────────────────────────
+    for outer in range(max_outer_iters):
+
+        # ── Step 1: Partial policy evaluation — k sweeps with early stop ─────
+        for _ in range(k):
+            max_delta = 0.0
+            for s in all_states:
+                if is_terminal(s):
+                    V[s] = 0.0
+                    continue
+                old_v = V[s]
+                V[s]  = q_value(s, policy[s], V)
+                max_delta = max(max_delta, abs(V[s] - old_v))
+
+            if max_delta < theta:
+                break                          # values stable — stop early
+
+        # ── Step 2: Policy improvement — greedy argmax ───────────────────────
+        new_policy = {}
+        for s in all_states:
+            if is_terminal(s):
+                new_policy[s] = (0, 0)         # arbitrary, never executed
+                continue
+            new_policy[s] = max(transitions[s].keys(),
+                                key=lambda a: q_value(s, a, V))
+
+        # ── Convergence check ─────────────────────────────────────────────────
+        if new_policy == policy:
+            print(f"  Converged after {outer + 1} outer iterations.")
+            break
+
+        policy = new_policy
+
+    return policy, V
 
 
 # ===========================================================================
