@@ -52,7 +52,15 @@ def generate_domain(domain_path):
         f.write(domain_str)
 
 def generate_problem(env, problem_path):
-    # Extract locations, agents, boxes from env grid
+    """
+    Generate a PDDL problem file from the current environment state.
+    
+    IMPORTANT: Goals are read from env.goal_positions (set once at init from
+    the ascii_map) — NOT from the live grid. When a box is pushed onto a goal
+    cell the Goal object is overwritten, so scanning the grid would lose goals.
+    Only the :init section (current state) changes between calls; the :goal
+    and :objects remain stable.
+    """
     w, h = env.width, env.height
     
     locations = []
@@ -60,13 +68,15 @@ def generate_problem(env, problem_path):
     agents = env.agents
     boxes = []
     heavyboxes = []
-    goals = []
 
-    # Analyze the static grid
+    # ── Scan the grid for topology and movable objects ────────────────
     for y in range(h):
         for x in range(w):
             cell = env.core_env.grid.get(x, y)
-            if cell is None or cell.type != 'wall':
+            # A cell is walkable if it's empty, a goal, a box, or an agent
+            # — basically anything that is NOT a wall.
+            is_wall = (cell is not None and cell.type == 'wall')
+            if not is_wall:
                 loc = f"loc_{x}_{y}"
                 locations.append(loc)
 
@@ -82,20 +92,24 @@ def generate_problem(env, problem_path):
                         adjacencies.append((loc, f"loc_{x}_{y+1}"))
                         adjacencies.append((f"loc_{x}_{y+1}", loc))
 
-                # Determine what is here
-                if cell is not None and cell.type == "goal":
-                    goals.append(loc)
-                elif cell is not None and cell.type == "box":
+                # Collect boxes from the grid (their CURRENT positions)
+                if cell is not None and cell.type == "box":
                     if getattr(cell, "box_size", "") == "heavy":
                         heavyboxes.append((f"hbx_{len(heavyboxes)}", loc))
                     else:
                         boxes.append((f"box_{len(boxes)}", loc))
 
+    # ── Use stored goal positions (stable, from ascii_map) ────────────
+    # These never change even when a box sits on top of a goal cell.
+    goals = [f"loc_{gx}_{gy}" for gx, gy in env.goal_positions]
+
+    # ── Agent positions ───────────────────────────────────────────────
     agent_locs = []
     for a in agents:
         px, py = env.agent_positions[a]
         agent_locs.append((a, f"loc_{px}_{py}"))
             
+    # ── Clear set: locations not occupied by an agent or box ──────────
     clear_set = set(locations)
     for _, loc in agent_locs:
         clear_set.discard(loc)
@@ -104,6 +118,7 @@ def generate_problem(env, problem_path):
     for _, loc in heavyboxes:
         clear_set.discard(loc)
 
+    # ── Build :objects ────────────────────────────────────────────────
     obj_str = "    " + " ".join(locations) + " - location\n"
     if agents:
         obj_str += "    " + " ".join(agents) + " - agent\n"
@@ -112,6 +127,7 @@ def generate_problem(env, problem_path):
     if heavyboxes:
         obj_str += "    " + " ".join([b[0] for b in heavyboxes]) + " - heavybox\n"
 
+    # ── Build :init ──────────────────────────────────────────────────
     init_str = ""
     for loc in clear_set:
         init_str += f"    (clear {loc})\n"
@@ -124,7 +140,8 @@ def generate_problem(env, problem_path):
     for l1, l2 in adjacencies:
         init_str += f"    (adj {l1} {l2})\n"
 
-    # Pair boxes then heavyboxes with goal locations (scan order: row by row, left to right)
+    # ── Build :goal ──────────────────────────────────────────────────
+    # Pair boxes then heavyboxes with goal locations (scan order)
     goal_conditions = []
     for i, (b_name, _) in enumerate(boxes):
         if i < len(goals):

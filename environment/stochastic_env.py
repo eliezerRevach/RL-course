@@ -134,8 +134,6 @@ class StochasticMultiAgentBoxPushEnv(MultiAgentBoxPushEnv):
                             self.core_env.grid.set(nx, ny, box_obj)
                             for agent, _ in pushers:
                                 self.agent_positions[agent] = box_pos
-                            if n_cell is not None and n_cell.type == "goal":
-                                self._apply_goal_termination(rewards, terminations)
                         # push fails → agents stay, world unchanged
 
                 # Either way, these agents' intents are consumed
@@ -162,8 +160,6 @@ class StochasticMultiAgentBoxPushEnv(MultiAgentBoxPushEnv):
                         self.core_env.grid.set(*fwd_fwd_pos, fwd_cell)
                         self.core_env.grid.set(*fwd_pos, None)
                         self.agent_positions[agent] = fwd_pos
-                        if fwd_fwd_cell is not None and fwd_fwd_cell.type == "goal":
-                            self._apply_goal_termination(rewards, terminations)
                     # push fails → agent stays, world unchanged
 
             elif fwd_cell is None or fwd_cell.can_overlap():
@@ -176,11 +172,13 @@ class StochasticMultiAgentBoxPushEnv(MultiAgentBoxPushEnv):
 
                 if actual_fwd_cell is None or actual_fwd_cell.can_overlap():
                     self.agent_positions[agent] = actual_fwd_pos
-                    if actual_fwd_cell is not None and actual_fwd_cell.type == "goal":
-                        self._apply_goal_termination(rewards, terminations)
                 # else: deviated into obstacle → agent stays, no error
 
             # else: intended cell is a wall / other obstacle → no-op
+
+        # ── Check if all boxes are on goal positions → terminate ──────
+        if self._all_boxes_on_goals():
+            self._apply_goal_termination(rewards, terminations)
 
         # ── Truncation check ──────────────────────────────────────────
         if self.steps >= self.max_steps:
