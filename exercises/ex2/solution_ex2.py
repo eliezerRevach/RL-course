@@ -153,6 +153,37 @@ def get_state(env) -> tuple:
     return (a0_pos, a0_dir, a1_pos, a1_dir, box0_pos, box1_pos, heavy_pos)
 
 
+def get_mpi_state(env) -> tuple:
+    """
+    Extract normalized state for MPI policy lookup.
+    State = (a_min, a_max, b_min, b_max, heavy_pos)
+        - directions dropped (rotation is free, doesn't affect value)
+        - agents and boxes sorted (canonical form, reduces state space ~4x)
+    """
+    agents = env.possible_agents
+    a0_pos = env.agent_positions[agents[0]]
+    a1_pos = env.agent_positions[agents[1]]
+
+    small_boxes, heavy_boxes = [], []
+    for y in range(env.height):
+        for x in range(env.width):
+            cell = env.core_env.grid.get(x, y)
+            if cell is not None and cell.type == "box":
+                if getattr(cell, "box_size", "") == "heavy":
+                    heavy_boxes.append((x, y))
+                else:
+                    small_boxes.append((x, y))
+
+    small_boxes.sort()
+    heavy_boxes.sort()
+
+    agents_sorted = tuple(sorted([a0_pos, a1_pos]))
+    heavy_pos     = heavy_boxes[0] if heavy_boxes else None
+
+    return (agents_sorted[0], agents_sorted[1],
+            small_boxes[0],   small_boxes[1],   heavy_pos)
+
+
 def build_transition_model(env):
     """
     Build the full MDP transition model analytically via BFS over reachable states.
@@ -537,7 +568,7 @@ if __name__ == "__main__":
 
     def mpi_policy_fn(env, obs):
         """Convert current env state to a joint action using the MPI policy."""
-        state = get_state(env)
+        state = get_mpi_state(env)   # normalized: no dirs, agents/boxes sorted
         joint_action = policy[state]
         # joint_action is a tuple (action_agent0, action_agent1)
         agents = env.possible_agents
