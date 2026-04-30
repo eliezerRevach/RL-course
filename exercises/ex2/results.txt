@@ -1,0 +1,1734 @@
+C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+============================================================
+Part 1 ù Online Planning (classical planner on stochastic env)
+============================================================
+[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
+[0m[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 4 steps!
+move(agent_0, loc_3_1, loc_2_1)
+push-small(agent_0, loc_2_1, loc_2_2, loc_2_3, box_0)
+push-small(agent_0, loc_2_2, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 5 steps!
+move(agent_1, loc_4_1, loc_5_1)
+move(agent_1, loc_5_1, loc_5_2)
+move(agent_1, loc_5_2, loc_5_3)
+move(agent_1, loc_5_3, loc_5_4)
+push-small(agent_1, loc_5_4, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 4 steps!
+move(agent_0, loc_3_1, loc_3_2)
+move(agent_0, loc_3_2, loc_3_3)
+move(agent_0, loc_3_3, loc_4_3)
+push-small(agent_0, loc_4_3, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 9 steps!
+move(agent_1, loc_4_1, loc_5_1)
+move(agent_1, loc_5_1, loc_5_2)
+move(agent_1, loc_5_2, loc_5_3)
+move(agent_1, loc_5_3, loc_4_3)
+move(agent_1, loc_4_3, loc_3_3)
+move(agent_1, loc_3_3, loc_2_3)
+push-small(agent_1, loc_2_3, loc_2_2, loc_2_3, box_0)
+push-small(agent_1, loc_2_2, loc_2_3, loc_2_4, box_0)
+push-small(agent_1, loc_2_3, loc_2_4, loc_2_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 4 steps!
+move(agent_0, loc_3_1, loc_2_1)
+push-small(agent_0, loc_2_1, loc_2_2, loc_2_3, box_0)
+push-small(agent_0, loc_2_2, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 5 steps!
+move(agent_1, loc_4_1, loc_5_1)
+move(agent_1, loc_5_1, loc_5_2)
+move(agent_1, loc_5_2, loc_5_3)
+move(agent_1, loc_5_3, loc_5_4)
+push-small(agent_1, loc_5_4, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 3 steps!
+push-small(agent_0, loc_2_1, loc_2_2, loc_2_3, box_0)
+push-small(agent_0, loc_2_2, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 4 steps!
+move(agent_1, loc_5_1, loc_5_2)
+move(agent_1, loc_5_2, loc_5_3)
+move(agent_1, loc_5_3, loc_5_4)
+push-small(agent_1, loc_5_4, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 3 steps!
+move(agent_1, loc_5_2, loc_5_3)
+move(agent_1, loc_5_3, loc_5_4)
+push-small(agent_1, loc_5_4, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 3 steps!
+move(agent_1, loc_5_2, loc_5_3)
+move(agent_1, loc_5_3, loc_5_4)
+push-small(agent_1, loc_5_4, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 2 steps!
+move(agent_1, loc_5_3, loc_4_3)
+push-small(agent_1, loc_4_3, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 1 steps!
+push-small(agent_1, loc_4_3, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 11 steps!
+push-small(agent_0, loc_2_2, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 10 steps!
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 4 steps!
+move(agent_0, loc_3_1, loc_2_1)
+push-small(agent_0, loc_2_1, loc_2_2, loc_2_3, box_0)
+push-small(agent_0, loc_2_2, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 5 steps!
+move(agent_1, loc_4_1, loc_5_1)
+move(agent_1, loc_5_1, loc_5_2)
+move(agent_1, loc_5_2, loc_5_3)
+move(agent_1, loc_5_3, loc_5_4)
+push-small(agent_1, loc_5_4, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 4 steps!
+move(agent_0, loc_3_1, loc_3_2)
+move(agent_0, loc_3_2, loc_3_3)
+move(agent_0, loc_3_3, loc_4_3)
+push-small(agent_0, loc_4_3, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 9 steps!
+move(agent_1, loc_4_1, loc_5_1)
+move(agent_1, loc_5_1, loc_5_2)
+move(agent_1, loc_5_2, loc_5_3)
+move(agent_1, loc_5_3, loc_4_3)
+move(agent_1, loc_4_3, loc_3_3)
+move(agent_1, loc_3_3, loc_2_3)
+push-small(agent_1, loc_2_3, loc_2_2, loc_2_3, box_0)
+push-small(agent_1, loc_2_2, loc_2_3, loc_2_4, box_0)
+push-small(agent_1, loc_2_3, loc_2_4, loc_2_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 4 steps!
+move(agent_0, loc_3_1, loc_2_1)
+push-small(agent_0, loc_2_1, loc_2_2, loc_2_3, box_0)
+push-small(agent_0, loc_2_2, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 5 steps!
+move(agent_1, loc_4_1, loc_5_1)
+move(agent_1, loc_5_1, loc_5_2)
+move(agent_1, loc_5_2, loc_5_3)
+move(agent_1, loc_5_3, loc_5_4)
+push-small(agent_1, loc_5_4, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 4 steps!
+move(agent_0, loc_3_1, loc_2_1)
+push-small(agent_0, loc_2_1, loc_2_2, loc_2_3, box_0)
+push-small(agent_0, loc_2_2, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 4 steps!
+move(agent_1, loc_5_1, loc_5_2)
+move(agent_1, loc_5_2, loc_5_3)
+move(agent_1, loc_5_3, loc_5_4)
+push-small(agent_1, loc_5_4, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 4 steps!
+move(agent_0, loc_3_1, loc_2_1)
+push-small(agent_0, loc_2_1, loc_2_2, loc_2_3, box_0)
+push-small(agent_0, loc_2_2, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 3 steps!
+move(agent_1, loc_5_2, loc_5_3)
+move(agent_1, loc_5_3, loc_5_4)
+push-small(agent_1, loc_5_4, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 3 steps!
+push-small(agent_0, loc_2_1, loc_2_2, loc_2_3, box_0)
+push-small(agent_0, loc_2_2, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 2 steps!
+move(agent_1, loc_5_3, loc_4_3)
+push-small(agent_1, loc_4_3, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 1 steps!
+push-small(agent_1, loc_5_4, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 1 steps!
+push-small(agent_1, loc_5_4, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 1 steps!
+push-small(agent_1, loc_5_4, loc_4_4, loc_4_5, box_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 15 steps!
+push-small(agent_1, loc_4_4, loc_3_4, loc_3_5, box_1)
+push-small(agent_1, loc_3_4, loc_3_5, loc_4_5, box_1)
+push-small(agent_0, loc_2_2, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_5, loc_4_5)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_5, loc_4_4)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
+[0mPlan found with 18 steps!
+move(agent_0, loc_2_2, loc_2_3)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_1)
+push-small(agent_0, loc_2_4, loc_2_5, loc_3_5, box_1)
+push-small(agent_0, loc_2_5, loc_3_5, loc_4_5, box_1)
+move(agent_0, loc_3_5, loc_3_4)
+move(agent_0, loc_3_4, loc_3_3)
+push-small(agent_0, loc_3_3, loc_2_3, loc_2_4, box_0)
+push-small(agent_0, loc_2_3, loc_2_4, loc_2_5, box_0)
+move(agent_1, loc_3_4, loc_4_4)
+move(agent_0, loc_2_4, loc_3_4)
+move(agent_0, loc_3_4, loc_4_4)
+move(agent_0, loc_4_4, loc_4_3)
+move(agent_1, loc_4_4, loc_4_3)
+push-heavy(agent_0, agent_1, loc_4_3, loc_4_2, loc_4_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_2, loc_4_3, loc_5_3, hbx_0)
+push-heavy(agent_0, agent_1, loc_4_3, loc_5_3, loc_5_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_3, loc_5_4, loc_6_4, hbx_0)
+push-heavy(agent_0, agent_1, loc_5_4, loc_6_4, loc_6_5, hbx_0)
+[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 563 of `C:\Users\eliezer\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\unified_planning\shortcuts.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Fast Downward
+  * Developers:  Uni Basel team and contributors (cf. https://github.com/aibasel/downward/blob/main/README.md)
+[0m[96m  * Description: [0m[96mFast Downward is a domain-independent classical planning system.[0m[96m
+[0m[96m
