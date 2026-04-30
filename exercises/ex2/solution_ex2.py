@@ -113,14 +113,14 @@ def run_online_planning(env, max_replans: int = 300) -> int:
 # ---------------------------------------------------------------------------
 # State representation
 # ---------------------------------------------------------------------------
-# A state is a tuple:
-#   (agent0_pos, agent0_dir, agent1_pos, agent1_dir,
-#    box0_pos,   box1_pos,   heavy_pos)
+# Full live tuple from ``get_state`` (includes facing directions):
+#   (agent0_pos, agent0_dir, agent1_pos, agent1_dir, box0, box1, heavy)
 #
-# where positions are (col, row) tuples and directions are 0-3.
+# MPI uses the same full tuple so forward/rotation dynamics are represented
+# exactly:
+#   (agent0_pos, agent0_dir, agent1_pos, agent1_dir, box0, box1, heavy)
 #
-# Feel free to simplify (e.g. drop agent directions if you argue they are
-# irrelevant) as long as you justify it in your live demo.
+# Agent order follows ``env.possible_agents``; boxes follow row-major scan.
 
 def get_state(env) -> tuple:
     """Extract the current state tuple from a live environment."""
@@ -142,10 +142,6 @@ def get_state(env) -> tuple:
                 else:
                     small_boxes.append((x, y))
 
-    # Sort for a canonical order
-    small_boxes.sort()
-    heavy_boxes.sort()
-
     box0_pos   = small_boxes[0] if len(small_boxes) > 0 else None
     box1_pos   = small_boxes[1] if len(small_boxes) > 1 else None
     heavy_pos  = heavy_boxes[0] if heavy_boxes else None
@@ -154,46 +150,19 @@ def get_state(env) -> tuple:
 
 
 def get_mpi_state(env) -> tuple:
-    """
-    Extract normalized state for MPI policy lookup.
-    State = (a_min, a_max, b_min, b_max, heavy_pos)
-        - directions dropped (rotation is free, doesn't affect value)
-        - agents and boxes sorted (canonical form, reduces state space ~4x)
-    """
-    agents = env.possible_agents
-    a0_pos = env.agent_positions[agents[0]]
-    a1_pos = env.agent_positions[agents[1]]
-
-    small_boxes, heavy_boxes = [], []
-    for y in range(env.height):
-        for x in range(env.width):
-            cell = env.core_env.grid.get(x, y)
-            if cell is not None and cell.type == "box":
-                if getattr(cell, "box_size", "") == "heavy":
-                    heavy_boxes.append((x, y))
-                else:
-                    small_boxes.append((x, y))
-
-    small_boxes.sort()
-    heavy_boxes.sort()
-
-    agents_sorted = tuple(sorted([a0_pos, a1_pos]))
-    heavy_pos     = heavy_boxes[0] if heavy_boxes else None
-
-    return (agents_sorted[0], agents_sorted[1],
-            small_boxes[0],   small_boxes[1],   heavy_pos)
+    """MPI policy key (same tuple as ``get_state``)."""
+    return get_state(env)
 
 
 def build_transition_model(env):
     """
     Build the full MDP transition model analytically via BFS over reachable states.
 
-    State = (a_min, a_max, b_min, b_max, heavy_pos)
-        Agents and small boxes are stored sorted (canonical form) so
-        (a1,a2) and (a2,a1) map to the same state — reduces state space ~4x.
+    State = (agent0_pos, agent0_dir, agent1_pos, agent1_dir, box0, box1, heavy)
+        Matches ``get_state`` / ``get_mpi_state``.
 
-    Joint action = (dir1, dir2)  dir in {0=RIGHT, 1=DOWN, 2=LEFT, 3=UP}
-        16 combinations total (4 per agent), actions are parallel.
+    Joint action = (act0, act1), act in {0=LEFT, 1=RIGHT, 2=FORWARD}
+        9 combinations total (3 per agent), actions are parallel.
 
     All data comes from env — NOT from PDDL:
         env.move_success_prob  → p_move (0.8)
@@ -240,8 +209,6 @@ def build_transition_model(env):
             if cell is not None and cell.type == "box":
                 (heavy_boxes if getattr(cell, "box_size", "") == "heavy"
                  else small_boxes).append((x, y))
-    small_boxes.sort()
-    heavy_boxes.sort()
 
     box0_init  = small_boxes[0] if len(small_boxes) > 0 else None
     box1_init  = small_boxes[1] if len(small_boxes) > 1 else None
@@ -249,28 +216,16 @@ def build_transition_model(env):
 
     # ── Helpers ───────────────────────────────────────────────────────────────
 
-    def set_agent_loc(a1, a2):
-        return tuple(sorted([a1, a2]))
-
-    def set_box_loc(b1, b2):
-        return tuple(sorted([b1, b2]))
-
-    def normalize(a1, a2, b1, b2, hb):
-        ag = set_agent_loc(a1, a2)
-        bx = set_box_loc(b1, b2)
-        return (ag[0], ag[1], bx[0], bx[1], hb)
-
     def is_invalid(pos):
         return (pos in walls or
                 pos[0] < 0 or pos[0] >= env.width or
                 pos[1] < 0 or pos[1] >= env.height)
 
     def is_terminal(state):
-        _, _, b0, b1, hb = state
+        b0, b1, hb = state[4], state[5], state[6]
         return b0 in goal_cells and b1 in goal_cells and hb in goal_cells
 
-    def box_on_vector(agent_pos, direction, state):
-        _, _, b0, b1, hb = state
+    def box_on_vector(agent_pos, direction, b0, b1, hb):
         vec    = DIR_TO_VEC[direction]
         target = (agent_pos[0] + vec[0], agent_pos[1] + vec[1])
         if target == b0:  return "box0"
@@ -278,34 +233,24 @@ def build_transition_model(env):
         if target == hb:  return "heavy"
         return None
 
-    def single_agent_outcomes(agent_pos, direction, state):
-        """
-        Returns [(prob, new_agent_pos, new_b0, new_b1, new_hb)].
-
-        Cases
-        -----
-        wall / out-of-bounds → no-op (1.0, same)
-        heavy in front       → no-op (single agent can't push heavy)
-        small box in front   → push: (p_push, success), (1-p_push, fail)
-        empty / goal         → stochastic move: (0.8, intended), (0.1, left), (0.1, right)
-        """
-        _, _, b0, b1, hb = state
+    def single_forward_outcomes(agent_pos, direction, b0, b1, hb, blocked_agents):
+        """Forward-only outcomes for one agent under current occupancy."""
         vec    = DIR_TO_VEC[direction]
         target = (agent_pos[0] + vec[0], agent_pos[1] + vec[1])
+
+        def blocked(pos):
+            return pos in blocked_agents or pos in (b0, b1, hb)
 
         if is_invalid(target):
             return [(1.0, agent_pos, b0, b1, hb)]
 
-        box = box_on_vector(agent_pos, direction, state)
-
-        # single agent cannot push heavy box
+        box = box_on_vector(agent_pos, direction, b0, b1, hb)
         if box == "heavy":
             return [(1.0, agent_pos, b0, b1, hb)]
 
-        # small box push
         if box in ("box0", "box1"):
             push_dest = (target[0] + vec[0], target[1] + vec[1])
-            if is_invalid(push_dest) or push_dest in (b0, b1, hb):
+            if is_invalid(push_dest) or blocked(push_dest):
                 return [(1.0, agent_pos, b0, b1, hb)]
             new_b0 = push_dest if box == "box0" else b0
             new_b1 = push_dest if box == "box1" else b1
@@ -314,14 +259,16 @@ def build_transition_model(env):
                 (1.0 - p_push, agent_pos, b0,     b1,     hb),
             ]
 
-        # empty / goal: stochastic move (agents don't block each other)
+        if blocked(target):
+            return [(1.0, agent_pos, b0, b1, hb)]
+
         l_vec = DIR_TO_VEC[(direction - 1) % 4]
         r_vec = DIR_TO_VEC[(direction + 1) % 4]
         l_pos = (agent_pos[0] + l_vec[0], agent_pos[1] + l_vec[1])
         r_pos = (agent_pos[0] + r_vec[0], agent_pos[1] + r_vec[1])
 
         def drift_ok(pos):
-            return not is_invalid(pos) and pos not in (b0, b1, hb)
+            return not is_invalid(pos) and not blocked(pos)
 
         actual_l = l_pos if drift_ok(l_pos) else agent_pos
         actual_r = r_pos if drift_ok(r_pos) else agent_pos
@@ -331,28 +278,112 @@ def build_transition_model(env):
             pos_prob[pos] = pos_prob.get(pos, 0.0) + p
         return [(p, pos, b0, b1, hb) for pos, p in pos_prob.items()]
 
-    def combine(outcomes_a1, outcomes_a2, state):
+    def apply_joint_action(state, joint_action):
         """
-        Cross-product of both agents' outcomes.
-        Multiply probs, extract only what changed per agent, normalize.
-        Sum probs for duplicate next_states.
+        Mirrors env.step phases:
+          1) rotations + forward intents
+          2) heavy joint push (stochastic)
+          3) remaining forwards in fixed agent order
         """
-        _, _, b0, b1, hb = state
-        combined = {}
-        for (p1, na1, nb0_1, nb1_1, nhb_1) in outcomes_a1:
-            for (p2, na2, nb0_2, nb1_2, nhb_2) in outcomes_a2:
-                prob     = p1 * p2
-                final_b0 = nb0_1 if nb0_1 != b0 else nb0_2
-                final_b1 = nb1_1 if nb1_1 != b1 else nb1_2
-                final_hb = nhb_1 if nhb_1 != hb else nhb_2
-                ns       = normalize(na1, na2, final_b0, final_b1, final_hb)
-                combined[ns] = combined.get(ns, 0.0) + prob
-        return [(p, ns, 1.0 if is_terminal(ns) else 0.0)
-                for ns, p in combined.items()]
+        a0p, d0, a1p, d1, b0, b1, hb = state
+        act0, act1 = joint_action
+
+        if act0 == 0:
+            d0 = (d0 - 1) % 4
+        elif act0 == 1:
+            d0 = (d0 + 1) % 4
+        if act1 == 0:
+            d1 = (d1 - 1) % 4
+        elif act1 == 1:
+            d1 = (d1 + 1) % 4
+
+        intents = {}
+        if act0 == 2:
+            vec0 = DIR_TO_VEC[d0]
+            intents[0] = {
+                "agent_pos": a0p,
+                "dir": d0,
+                "target_pos": (a0p[0] + vec0[0], a0p[1] + vec0[1]),
+                "vec": vec0,
+            }
+        if act1 == 2:
+            vec1 = DIR_TO_VEC[d1]
+            intents[1] = {
+                "agent_pos": a1p,
+                "dir": d1,
+                "target_pos": (a1p[0] + vec1[0], a1p[1] + vec1[1]),
+                "vec": vec1,
+            }
+
+        base = {
+            "a0p": a0p, "d0": d0,
+            "a1p": a1p, "d1": d1,
+            "b0": b0, "b1": b1, "hb": hb,
+        }
+        branches = [(1.0, base, intents)]
+
+        if 0 in intents and 1 in intents:
+            i0, i1 = intents[0], intents[1]
+            if (i0["target_pos"] == i1["target_pos"] == hb and
+                    i0["agent_pos"] == i1["agent_pos"] and
+                    i0["dir"] == i1["dir"]):
+                push_dest = (hb[0] + i0["vec"][0], hb[1] + i0["vec"][1])
+                push_valid = not is_invalid(push_dest) and push_dest not in (b0, b1)
+                if push_valid:
+                    succ_state = dict(base)
+                    succ_state["a0p"] = hb
+                    succ_state["a1p"] = hb
+                    succ_state["hb"] = push_dest
+                    rem_intents = {}
+                    fail_state = dict(base)
+                    branches = [
+                        (p_push, succ_state, rem_intents),
+                        (1.0 - p_push, fail_state, rem_intents),
+                    ]
+                else:
+                    branches = [(1.0, base, {})]
+
+        next_state_prob = {}
+        for p_branch, branch_state, branch_intents in branches:
+            b_states = [(1.0, branch_state)]
+            for idx in [0, 1]:
+                if idx not in branch_intents:
+                    continue
+                new_b_states = []
+                for p_prev, st in b_states:
+                    if idx == 0:
+                        blocked_agents = {st["a1p"]}
+                        out = single_forward_outcomes(
+                            st["a0p"], st["d0"], st["b0"], st["b1"], st["hb"], blocked_agents
+                        )
+                        for p_out, na, nb0, nb1, nhb in out:
+                            st2 = dict(st)
+                            st2["a0p"] = na
+                            st2["b0"], st2["b1"], st2["hb"] = nb0, nb1, nhb
+                            new_b_states.append((p_prev * p_out, st2))
+                    else:
+                        blocked_agents = {st["a0p"]}
+                        out = single_forward_outcomes(
+                            st["a1p"], st["d1"], st["b0"], st["b1"], st["hb"], blocked_agents
+                        )
+                        for p_out, na, nb0, nb1, nhb in out:
+                            st2 = dict(st)
+                            st2["a1p"] = na
+                            st2["b0"], st2["b1"], st2["hb"] = nb0, nb1, nhb
+                            new_b_states.append((p_prev * p_out, st2))
+                b_states = new_b_states
+
+            for p_fin, st in b_states:
+                ns = (st["a0p"], st["d0"], st["a1p"], st["d1"], st["b0"], st["b1"], st["hb"])
+                next_state_prob[ns] = next_state_prob.get(ns, 0.0) + (p_branch * p_fin)
+
+        return [(p, ns, 1.0 if is_terminal(ns) else 0.0) for ns, p in next_state_prob.items()]
 
     # ── BFS over reachable states ─────────────────────────────────────────────
-    DIRS          = [0, 1, 2, 3]
-    initial_state = normalize(a0_init, a1_init, box0_init, box1_init, heavy_init)
+    ACTIONS       = [0, 1, 2]
+    d0_init       = env.agent_dirs[agents[0]]
+    d1_init       = env.agent_dirs[agents[1]]
+    initial_state = (a0_init, d0_init, a1_init, d1_init, box0_init, box1_init, heavy_init)
     transitions   = {}
     visited       = {initial_state}
     queue         = deque([initial_state])
@@ -364,39 +395,10 @@ def build_transition_model(env):
         if is_terminal(state):
             continue                    # absorbing — no outgoing transitions
 
-        a0p, a1p, b0, b1, hb = state
-
-        for action1 in DIRS:
-            for action2 in DIRS:
+        for action1 in ACTIONS:
+            for action2 in ACTIONS:
                 joint = (action1, action2)
-                vec   = DIR_TO_VEC[action1]
-
-                # ── heavy box joint push ──────────────────────────────────────
-                if (a0p == a1p and
-                        action1 == action2 and
-                        box_on_vector(a0p, action1, state) == "heavy"):
-                    push_dest  = (hb[0] + vec[0], hb[1] + vec[1])
-                    push_valid = not is_invalid(push_dest) and push_dest not in (b0, b1)
-                    if push_valid:
-                        s_succ = normalize(hb, hb, b0, b1, push_dest)
-                        r_succ = 1.0 if is_terminal(s_succ) else 0.0
-                        transitions[state][joint] = [
-                            (p_push,       s_succ, r_succ),
-                            (1.0 - p_push, state,  0.0),
-                        ]
-                    else:
-                        transitions[state][joint] = [(1.0, state, 0.0)]
-
-                    for _, ns, _ in transitions[state][joint]:
-                        if ns not in visited:
-                            visited.add(ns)
-                            queue.append(ns)
-                    continue
-
-                # ── general case: parallel independent actions ────────────────
-                outcomes_a1 = single_agent_outcomes(a0p, action1, state)
-                outcomes_a2 = single_agent_outcomes(a1p, action2, state)
-                transitions[state][joint] = combine(outcomes_a1, outcomes_a2, state)
+                transitions[state][joint] = apply_joint_action(state, joint)
 
                 for _, ns, _ in transitions[state][joint]:
                     if ns not in visited:
@@ -568,7 +570,7 @@ if __name__ == "__main__":
 
     def mpi_policy_fn(env, obs):
         """Convert current env state to a joint action using the MPI policy."""
-        state = get_mpi_state(env)   # normalized: no dirs, agents/boxes sorted
+        state = get_mpi_state(env)   # full tuple: positions + headings + boxes
         joint_action = policy[state]
         # joint_action is a tuple (action_agent0, action_agent1)
         agents = env.possible_agents
