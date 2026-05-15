@@ -1,30 +1,40 @@
 """
 Assignment 2 — Probabilistic Box Pushing
 =========================================
-Fill in the three TODO sections below:
-  1. run_online_planning  — online replanning loop
-  2. build_transition_model — MDP transition model (used by MPI)
-  3. modified_policy_iteration — MPI algorithm
+RPG-driven solution.
 
-Do NOT modify evaluate_policy or the __main__ block.
+  - Both Part 1 (online planning) and Part 2 (MPI) use the SAME relaxed-graph
+    machinery: BFS in the box "push-graph" (i.e. ignoring agents and other
+    boxes, only respecting walls).
+  - Part 2's MPI uses the RPG distance as a value-function warm start
+      V_init[s] = gamma ** sum_b ( push_BFS_dist(b, nearest_goal) )
+  - Part 1's online planner picks next env actions by:
+      1.  RPG assignment of boxes -> goals (min total push-distance).
+      2.  Pick the next intended push step from each box's RPG path.
+      3.  Single-agent BFS over (pos, dir) to reach the right "stance"
+          (one cell behind the box, facing the push direction).
+      4.  Forward (=push attempt) when the stance is correct.
+
+  Currently configured for 2 agents + 2 small boxes + 2 goals (no heavy).
+  The code also accepts maps with a heavy box / 3 goals.
 """
 
 import sys
 import os
-import tempfile
-from collections import deque
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
+import time
+from collections import deque
+from itertools import permutations
+
 import numpy as np
-from environment.stochastic_env import StochasticMultiAgentBoxPushEnv
-from environment.pddl_extractor import generate_pddl_for_env
-from planner.pddl_solver import solve_pddl
-from visualize_plan import extract_target_pos, get_required_actions
 from minigrid.core.constants import DIR_TO_VEC
+from environment.stochastic_env import StochasticMultiAgentBoxPushEnv
+
 
 # ---------------------------------------------------------------------------
-# Map used in both parts (same as Assignment 1)
+# Map
 # ---------------------------------------------------------------------------
 ASCII_MAP = [
     "WWWWWWWW",
@@ -38,444 +48,12 @@ ASCII_MAP = [
 
 
 # ===========================================================================
-# Part 1 — Online Planning
+# RPG / BFS helpers (used by BOTH parts)
 # ===========================================================================
 
 def _scan_world(env):
-    walls = set()
-    goals = []
-    small_boxes = []
-    heavy_box = None
-    for y in range(env.height):
-        for x in range(env.width):
-            cell = env.core_env.grid.get(x, y)
-            if cell is None:
-                continue
-            if cell.type == "wall":
-                walls.add((x, y))
-            elif cell.type == "goal":
-                goals.append((x, y))
-            elif cell.type == "box":
-                if getattr(cell, "box_size", "") == "heavy":
-                    heavy_box = (x, y)
-                else:
-                    small_boxes.append((x, y))
-    goals.sort(key=lambda p: (p[1], p[0]))
-    small_boxes.sort(key=lambda p: (p[1], p[0]))
-    return walls, goals, small_boxes, heavy_box
-
-
-def _loc_name(pos):
-    return f"loc_{pos[0]}_{pos[1]}"
-
-
-def _neighbors(pos):
-    for vec in DIR_TO_VEC:
-        yield (pos[0] + vec[0], pos[1] + vec[1])
-
-
-def _write_single_agent_problem(env, agent_name, box_pos, goal_pos, blocked_cells, out_path):
-    walls, _, _, _ = _scan_world(env)
-    walkable = []
-    for y in range(env.height):
-        for x in range(env.width):
-            p = (x, y)
-            if p in walls or p in blocked_cells:
-                continue
-            walkable.append(p)
-
-    walkable_set = set(walkable)
-    adj = []
-    for p in walkable:
-        for q in _neighbors(p):
-            if q in walkable_set:
-                adj.append((p, q))
-
-    clear_cells = set(walkable)
-    clear_cells.discard(env.agent_positions[agent_name])
-    clear_cells.discard(box_pos)
-
-    objects = "    " + " ".join(_loc_name(p) for p in walkable) + " - location\n"
-    objects += f"    {agent_name} - agent\n"
-    objects += "    box_0 - box\n"
-
-    init_lines = []
-    for p in sorted(clear_cells, key=lambda v: (v[1], v[0])):
-        init_lines.append(f"    (clear {_loc_name(p)})")
-    init_lines.append(f"    (agent-at {agent_name} {_loc_name(env.agent_positions[agent_name])})")
-    init_lines.append(f"    (box-at box_0 {_loc_name(box_pos)})")
-    for p, q in adj:
-        init_lines.append(f"    (adj {_loc_name(p)} {_loc_name(q)})")
-    init_str = "\n".join(init_lines)
-
-    goal_str = f"(and\n    (box-at box_0 {_loc_name(goal_pos)})\n  )"
-    problem = f"""(define (problem box-push-single)
-  (:domain box-push)
-  (:objects
-{objects}  )
-  (:init
-{init_str}
-  )
-  (:goal
-  {goal_str}
-  )
-)"""
-    with open(out_path, "w", encoding="utf-8") as f:
-        f.write(problem)
-
-
-def _plan_length_for_assignment(env, domain_path, assignment):
-    # assignment: {agent_name: (small_box_pos, goal_pos)}
-    total = {}
-    with tempfile.TemporaryDirectory(prefix="phase1_abs_") as td:
-        for agent, (box_pos, goal_pos) in assignment.items():
-            _, _, small_boxes, heavy = _scan_world(env)
-            blocked = set(small_boxes)
-            blocked.discard(box_pos)
-            if heavy is not None:
-                blocked.add(heavy)
-            other_agents = [a for a in env.possible_agents if a != agent]
-            for oa in other_agents:
-                blocked.add(env.agent_positions[oa])
-
-            problem_path = os.path.join(td, f"problem_{agent}.pddl")
-            _write_single_agent_problem(env, agent, box_pos, goal_pos, blocked, problem_path)
-            plan = solve_pddl(domain_path, problem_path)
-            total[agent] = np.inf if (not plan or not plan.actions) else len(plan.actions)
-
-    return max(total.values()) if total else np.inf
-
-
-def _select_assignment(env, domain_path):
-    _, goals, small_boxes, _ = _scan_world(env)
-    if len(goals) < 2 or len(small_boxes) < 2:
-        return {}
-
-    a0, a1 = env.possible_agents[0], env.possible_agents[1]
-    perm_a = {
-        a0: (small_boxes[0], goals[0]),
-        a1: (small_boxes[1], goals[1]),
-    }
-    perm_b = {
-        a0: (small_boxes[1], goals[1]),
-        a1: (small_boxes[0], goals[0]),
-    }
-    score_a = _plan_length_for_assignment(env, domain_path, perm_a)
-    score_b = _plan_length_for_assignment(env, domain_path, perm_b)
-    return perm_a if score_a <= score_b else perm_b
-
-
-def _shortest_turning_path_actions(start_pos, start_dir, goal_pos, goal_dir, blocked, env):
-    q = deque([(start_pos, start_dir)])
-    parent = {(start_pos, start_dir): None}
-    parent_action = {}
-    while q:
-        s_pos, s_dir = q.popleft()
-        if s_pos == goal_pos and s_dir == goal_dir:
-            break
-
-        left = (s_pos, (s_dir - 1) % 4)
-        right = (s_pos, (s_dir + 1) % 4)
-        for nxt, act in [(left, 0), (right, 1)]:
-            if nxt not in parent:
-                parent[nxt] = (s_pos, s_dir)
-                parent_action[nxt] = act
-                q.append(nxt)
-
-        fvec = DIR_TO_VEC[s_dir]
-        fpos = (s_pos[0] + fvec[0], s_pos[1] + fvec[1])
-        if (0 <= fpos[0] < env.width and 0 <= fpos[1] < env.height and
-                fpos not in blocked):
-            nxt = (fpos, s_dir)
-            if nxt not in parent:
-                parent[nxt] = (s_pos, s_dir)
-                parent_action[nxt] = 2
-                q.append(nxt)
-
-    goal_state = (goal_pos, goal_dir)
-    if goal_state not in parent:
-        return None
-
-    actions = []
-    cur = goal_state
-    while parent[cur] is not None:
-        actions.append(parent_action[cur])
-        cur = parent[cur]
-    actions.reverse()
-    return actions
-
-
-def _build_backward_heavy_chain(env, heavy_start, heavy_goal, static_blocked):
-    walls, _, _, _ = _scan_world(env)
-    blocked = set(walls) | set(static_blocked)
-
-    def valid(pos):
-        return (0 <= pos[0] < env.width and 0 <= pos[1] < env.height and pos not in blocked)
-
-    q = deque([heavy_goal])
-    parent = {heavy_goal: None}
-    while q:
-        curr = q.popleft()
-        if curr == heavy_start:
-            break
-        for vec in DIR_TO_VEC:
-            prev = (curr[0] - vec[0], curr[1] - vec[1])
-            origin = (prev[0] - vec[0], prev[1] - vec[1])
-            if not valid(prev) or not valid(origin):
-                continue
-            if prev not in parent:
-                parent[prev] = curr
-                q.append(prev)
-
-    if heavy_start not in parent:
-        return [heavy_start]
-
-    chain = [heavy_start]
-    cur = heavy_start
-    while cur != heavy_goal:
-        cur = parent[cur]
-        chain.append(cur)
-    return chain
-
-
-def _execute_joint_queues(env, action_queues):
-    total_steps = 0
-    while any(action_queues[a] for a in action_queues):
-        step_actions = {}
-        for a in action_queues:
-            if action_queues[a]:
-                act = action_queues[a].pop(0)
-                if act is not None:
-                    step_actions[a] = act
-        _, _, terms, truncs, _ = env.step(step_actions)
-        total_steps += 1
-        if any(terms.values()) or any(truncs.values()):
-            return total_steps, True
-    return total_steps, False
-
-def run_online_planning(env, max_replans: int = 300) -> int:
-    """
-    Execute one episode using online planning:
-      replan from the current state → execute only the first PDDL action → repeat.
-
-    Returns
-    -------
-    int
-        Number of *env* steps taken (counting each rotate/forward individually).
-        Returns max_replans * <average_actions_per_plan_step> as a large sentinel
-        if the goal was never reached within max_replans replanning calls.
-    """
-    env.reset()
-    total_env_steps = 0
-
-    domain_path, _ = generate_pddl_for_env(env)
-    assignment = _select_assignment(env, domain_path)
-    heavy_chain = None
-    heavy_idx = 0
-
-    for _ in range(max_replans):
-        walls, goals, small_boxes, heavy = _scan_world(env)
-        if env._all_boxes_on_goals():
-            break
-
-        # Phase 1: independent abstract planning for the two small boxes
-        small_phase_pending = (
-            len(small_boxes) >= 2
-            and len(goals) >= 2
-            and (small_boxes[0] != goals[0] or small_boxes[1] != goals[1])
-        )
-        if small_phase_pending:
-            action_queues = {}
-            with tempfile.TemporaryDirectory(prefix="phase1_exec_") as td:
-                for agent in env.possible_agents:
-                    if agent not in assignment:
-                        continue
-                    box_pos, goal_pos = assignment[agent]
-                    # refresh assignment box to current matching instance
-                    if box_pos not in small_boxes:
-                        continue
-                    if box_pos == goal_pos:
-                        continue
-
-                    blocked = set(small_boxes)
-                    blocked.discard(box_pos)
-                    if heavy is not None:
-                        blocked.add(heavy)
-                    for other in env.possible_agents:
-                        if other != agent:
-                            blocked.add(env.agent_positions[other])
-
-                    problem_path = os.path.join(td, f"problem_{agent}.pddl")
-                    _write_single_agent_problem(env, agent, box_pos, goal_pos, blocked, problem_path)
-                    plan = solve_pddl(domain_path, problem_path)
-                    if not plan or not plan.actions:
-                        continue
-                    targets = extract_target_pos(plan.actions[0])
-                    if agent not in targets:
-                        continue
-                    action_queues[agent] = get_required_actions(env, agent, targets[agent])
-
-            if not action_queues:
-                # fallback: full-world planner first action
-                domain_path, problem_path = generate_pddl_for_env(env)
-                plan = solve_pddl(domain_path, problem_path)
-                if not plan or not plan.actions:
-                    break
-                targets = extract_target_pos(plan.actions[0])
-                action_queues = {
-                    a: get_required_actions(env, a, targets[a])
-                    for a in targets
-                }
-
-            max_len = max(len(q) for q in action_queues.values())
-            for a in action_queues:
-                action_queues[a] = [None] * (max_len - len(action_queues[a])) + action_queues[a]
-            steps, done = _execute_joint_queues(env, action_queues)
-            total_env_steps += steps
-            if done:
-                break
-            continue
-
-        # Phase 2 + 3: backward heavy chain + rendezvous to push stance
-        if heavy is None or len(goals) < 3:
-            break
-        heavy_goal = goals[2]
-        if heavy_chain is None or heavy_idx >= len(heavy_chain) - 1:
-            static_blocked = set(small_boxes)
-            heavy_chain = _build_backward_heavy_chain(env, heavy, heavy_goal, static_blocked)
-            heavy_idx = 0
-        if heavy_idx >= len(heavy_chain) - 1:
-            break
-
-        curr_h = heavy_chain[heavy_idx]
-        next_h = heavy_chain[heavy_idx + 1]
-        vec = (next_h[0] - curr_h[0], next_h[1] - curr_h[1])
-        dir_map = {tuple(v): i for i, v in enumerate(DIR_TO_VEC)}
-        if vec not in dir_map:
-            break
-        push_dir = dir_map[vec]
-        origin = (curr_h[0] - vec[0], curr_h[1] - vec[1])
-
-        # Phase 3 rendezvous paths for both agents to same origin + heading
-        blocked = set(walls) | set(small_boxes) | {curr_h}
-        agents = env.possible_agents
-        queues = {}
-        for a in agents:
-            start_pos = env.agent_positions[a]
-            start_dir = env.agent_dirs[a]
-            path_actions = _shortest_turning_path_actions(
-                start_pos, start_dir, origin, push_dir, blocked, env
-            )
-            if path_actions is None:
-                queues = {}
-                break
-            queues[a] = path_actions
-        if not queues:
-            break
-
-        max_len = max(len(q) for q in queues.values())
-        for a in queues:
-            queues[a] = [None] * (max_len - len(queues[a])) + queues[a]
-        steps, done = _execute_joint_queues(env, queues)
-        total_env_steps += steps
-        if done:
-            break
-
-        # try heavy push (both forward together), retry on stochastic failure
-        _, _, terms, truncs, _ = env.step({agents[0]: 2, agents[1]: 2})
-        total_env_steps += 1
-        if any(terms.values()) or any(truncs.values()):
-            break
-
-        _, _, _, heavy_now = _scan_world(env)
-        if heavy_now == next_h:
-            heavy_idx += 1
-
-    return total_env_steps
-
-
-# ===========================================================================
-# Part 2 — Modified Policy Iteration
-# ===========================================================================
-
-# ---------------------------------------------------------------------------
-# State representation
-# ---------------------------------------------------------------------------
-# Full live tuple from ``get_state`` (includes facing directions):
-#   (agent0_pos, agent0_dir, agent1_pos, agent1_dir, box0, box1, heavy)
-#
-# MPI uses the same full tuple so forward/rotation dynamics are represented
-# exactly:
-#   (agent0_pos, agent0_dir, agent1_pos, agent1_dir, box0, box1, heavy)
-#
-# Agent order follows ``env.possible_agents``; boxes follow row-major scan.
-
-def get_state(env) -> tuple:
-    """Extract the current state tuple from a live environment."""
-    agents = env.possible_agents
-    a0_pos = env.agent_positions[agents[0]]
-    a0_dir = env.agent_dirs[agents[0]]
-    a1_pos = env.agent_positions[agents[1]]
-    a1_dir = env.agent_dirs[agents[1]]
-
-    # Collect box positions by scanning the grid
-    small_boxes = []
-    heavy_boxes = []
-    for y in range(env.height):
-        for x in range(env.width):
-            cell = env.core_env.grid.get(x, y)
-            if cell is not None and cell.type == "box":
-                if getattr(cell, "box_size", "") == "heavy":
-                    heavy_boxes.append((x, y))
-                else:
-                    small_boxes.append((x, y))
-
-    box0_pos   = small_boxes[0] if len(small_boxes) > 0 else None
-    box1_pos   = small_boxes[1] if len(small_boxes) > 1 else None
-    heavy_pos  = heavy_boxes[0] if heavy_boxes else None
-
-    return (a0_pos, a0_dir, a1_pos, a1_dir, box0_pos, box1_pos, heavy_pos)
-
-
-def get_mpi_state(env) -> tuple:
-    """MPI policy key (same tuple as ``get_state``)."""
-    return get_state(env)
-
-
-def build_transition_model(env):
-    """
-    Build the full MDP transition model analytically via BFS over reachable states.
-
-    State = (agent0_pos, agent0_dir, agent1_pos, agent1_dir, box0, box1, heavy)
-        Matches ``get_state`` / ``get_mpi_state``.
-
-    Joint action = (act0, act1), act in {0=LEFT, 1=RIGHT, 2=FORWARD}
-        9 combinations total (3 per agent), actions are parallel.
-
-    All data comes from env — NOT from PDDL:
-        env.move_success_prob  → p_move (0.8)
-        env.push_success_prob  → p_push (0.8)
-        env.core_env.grid      → walls, goals
-        env.agent_positions    → initial agent positions
-        grid scan              → initial box positions
-
-    Returns
-    -------
-    transitions : dict
-        transitions[state][joint_action] = [(prob, next_state, reward), ...]
-        reward = 1.0 when next_state is terminal, 0.0 otherwise
-    """
-    from minigrid.core.constants import DIR_TO_VEC
-    from collections import deque
-
-    # ── Read everything from env ──────────────────────────────────────────────
-    env.reset()
-
-    p_move  = env.move_success_prob
-    p_push  = env.push_success_prob
-    p_drift = (1.0 - p_move) / 2.0
-
-    walls, goal_cells = set(), set()
+    """Return (walls, goal_cells, small_boxes_sorted, heavy_or_None)."""
+    walls, goal_cells, small, heavy = set(), set(), [], None
     for y in range(env.height):
         for x in range(env.width):
             cell = env.core_env.grid.get(x, y)
@@ -485,484 +63,809 @@ def build_transition_model(env):
                 walls.add((x, y))
             elif cell.type == "goal":
                 goal_cells.add((x, y))
+            elif cell.type == "box":
+                if getattr(cell, "box_size", "") == "heavy":
+                    heavy = (x, y)
+                else:
+                    small.append((x, y))
+    for gp in getattr(env, "goal_positions", []):
+        goal_cells.add(tuple(gp))
+    small.sort()
+    return walls, goal_cells, small, heavy
 
-    agents  = env.possible_agents
-    a0_init = env.agent_positions[agents[0]]
-    a1_init = env.agent_positions[agents[1]]
 
-    small_boxes, heavy_boxes = [], []
-    for y in range(env.height):
-        for x in range(env.width):
-            cell = env.core_env.grid.get(x, y)
-            if cell is not None and cell.type == "box":
-                (heavy_boxes if getattr(cell, "box_size", "") == "heavy"
-                 else small_boxes).append((x, y))
+def _push_neighbors(c, walls, width, height):
+    """Cells reachable by ONE relaxed push from c (ignoring agents/other boxes).
+    A push from c to c+d is valid iff c+d is in-bounds non-wall AND c-d is
+    in-bounds non-wall (the agent has to stand at c-d to push)."""
+    out = []
+    for dx, dy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
+        nc     = (c[0] + dx, c[1] + dy)
+        behind = (c[0] - dx, c[1] - dy)
+        if not (0 <= nc[0] < width and 0 <= nc[1] < height): continue
+        if not (0 <= behind[0] < width and 0 <= behind[1] < height): continue
+        if nc in walls: continue
+        if behind in walls: continue
+        out.append((nc, (dx, dy)))
+    return out
 
-    box0_init  = small_boxes[0] if len(small_boxes) > 0 else None
-    box1_init  = small_boxes[1] if len(small_boxes) > 1 else None
-    heavy_init = heavy_boxes[0] if heavy_boxes else None
 
-    # ── Helpers ───────────────────────────────────────────────────────────────
+def _push_bfs_distances(source, walls, width, height):
+    """All-pairs BFS distance in the push-graph FROM `source`.
+    Returns dict cell -> distance."""
+    dist = {source: 0}
+    q = deque([source])
+    while q:
+        c = q.popleft()
+        for nc, _ in _push_neighbors(c, walls, width, height):
+            if nc not in dist:
+                dist[nc] = dist[c] + 1
+                q.append(nc)
+    return dist
 
-    def is_invalid(pos):
-        return (pos in walls or
-                pos[0] < 0 or pos[0] >= env.width or
-                pos[1] < 0 or pos[1] >= env.height)
 
-    def is_terminal(state):
-        b0, b1, hb = state[4], state[5], state[6]
-        return b0 in goal_cells and b1 in goal_cells and hb in goal_cells
+def _push_bfs_path(source, target, walls, width, height):
+    """Return [(cell_1, push_vec_1), ..., (target, push_vec)] or None."""
+    if source == target:
+        return []
+    parent = {source: None}      # cell -> (prev_cell, push_vec_used)
+    q = deque([source])
+    while q:
+        c = q.popleft()
+        for nc, vec in _push_neighbors(c, walls, width, height):
+            if nc not in parent:
+                parent[nc] = (c, vec)
+                if nc == target:
+                    path = []
+                    cur = nc
+                    while parent[cur] is not None:
+                        prev, pv = parent[cur]
+                        path.append((cur, pv))
+                        cur = prev
+                    return list(reversed(path))
+                q.append(nc)
+    return None
 
-    def box_on_vector(agent_pos, direction, b0, b1, hb):
-        vec    = DIR_TO_VEC[direction]
-        target = (agent_pos[0] + vec[0], agent_pos[1] + vec[1])
-        if target == b0:  return "box0"
-        if target == b1:  return "box1"
-        if target == hb:  return "heavy"
+
+def _agent_bfs_first_action(start_pos, start_dir,
+                            target_pos, target_dir,
+                            walls, blocked, width, height):
+    """Plan agent: BFS over (pos, dir).  Returns the FIRST primitive action
+    (0=left, 1=right, 2=forward) on the shortest path to (target_pos, target_dir),
+    or None if already there / unreachable."""
+    start  = (start_pos, start_dir)
+    target = (target_pos, target_dir)
+    if start == target:
         return None
 
-    def single_forward_outcomes(agent_pos, direction, b0, b1, hb, blocked_agents):
-        """Forward-only outcomes for one agent under current occupancy."""
-        vec    = DIR_TO_VEC[direction]
-        target = (agent_pos[0] + vec[0], agent_pos[1] + vec[1])
-
-        def blocked(pos):
-            return pos in blocked_agents or pos in (b0, b1, hb)
-
-        if is_invalid(target):
-            return [(1.0, agent_pos, b0, b1, hb)]
-
-        box = box_on_vector(agent_pos, direction, b0, b1, hb)
-        if box == "heavy":
-            return [(1.0, agent_pos, b0, b1, hb)]
-
-        if box in ("box0", "box1"):
-            push_dest = (target[0] + vec[0], target[1] + vec[1])
-            if is_invalid(push_dest) or blocked(push_dest):
-                return [(1.0, agent_pos, b0, b1, hb)]
-            new_b0 = push_dest if box == "box0" else b0
-            new_b1 = push_dest if box == "box1" else b1
-            return [
-                (p_push,       target,    new_b0, new_b1, hb),
-                (1.0 - p_push, agent_pos, b0,     b1,     hb),
-            ]
-
-        if blocked(target):
-            return [(1.0, agent_pos, b0, b1, hb)]
-
-        l_vec = DIR_TO_VEC[(direction - 1) % 4]
-        r_vec = DIR_TO_VEC[(direction + 1) % 4]
-        l_pos = (agent_pos[0] + l_vec[0], agent_pos[1] + l_vec[1])
-        r_pos = (agent_pos[0] + r_vec[0], agent_pos[1] + r_vec[1])
-
-        def drift_ok(pos):
-            return not is_invalid(pos) and not blocked(pos)
-
-        actual_l = l_pos if drift_ok(l_pos) else agent_pos
-        actual_r = r_pos if drift_ok(r_pos) else agent_pos
-
-        pos_prob = {}
-        for pos, p in [(target, p_move), (actual_l, p_drift), (actual_r, p_drift)]:
-            pos_prob[pos] = pos_prob.get(pos, 0.0) + p
-        return [(p, pos, b0, b1, hb) for pos, p in pos_prob.items()]
-
-    def apply_joint_action(state, joint_action):
-        """
-        Mirrors env.step phases:
-          1) rotations + forward intents
-          2) heavy joint push (stochastic)
-          3) remaining forwards in fixed agent order
-        """
-        a0p, d0, a1p, d1, b0, b1, hb = state
-        act0, act1 = joint_action
-
-        if act0 == 0:
-            d0 = (d0 - 1) % 4
-        elif act0 == 1:
-            d0 = (d0 + 1) % 4
-        if act1 == 0:
-            d1 = (d1 - 1) % 4
-        elif act1 == 1:
-            d1 = (d1 + 1) % 4
-
-        intents = {}
-        if act0 == 2:
-            vec0 = DIR_TO_VEC[d0]
-            intents[0] = {
-                "agent_pos": a0p,
-                "dir": d0,
-                "target_pos": (a0p[0] + vec0[0], a0p[1] + vec0[1]),
-                "vec": vec0,
-            }
-        if act1 == 2:
-            vec1 = DIR_TO_VEC[d1]
-            intents[1] = {
-                "agent_pos": a1p,
-                "dir": d1,
-                "target_pos": (a1p[0] + vec1[0], a1p[1] + vec1[1]),
-                "vec": vec1,
-            }
-
-        base = {
-            "a0p": a0p, "d0": d0,
-            "a1p": a1p, "d1": d1,
-            "b0": b0, "b1": b1, "hb": hb,
-        }
-        branches = [(1.0, base, intents)]
-
-        if 0 in intents and 1 in intents:
-            i0, i1 = intents[0], intents[1]
-            if (i0["target_pos"] == i1["target_pos"] == hb and
-                    i0["agent_pos"] == i1["agent_pos"] and
-                    i0["dir"] == i1["dir"]):
-                push_dest = (hb[0] + i0["vec"][0], hb[1] + i0["vec"][1])
-                push_valid = not is_invalid(push_dest) and push_dest not in (b0, b1)
-                if push_valid:
-                    succ_state = dict(base)
-                    succ_state["a0p"] = hb
-                    succ_state["a1p"] = hb
-                    succ_state["hb"] = push_dest
-                    rem_intents = {}
-                    fail_state = dict(base)
-                    branches = [
-                        (p_push, succ_state, rem_intents),
-                        (1.0 - p_push, fail_state, rem_intents),
-                    ]
-                else:
-                    branches = [(1.0, base, {})]
-
-        next_state_prob = {}
-        for p_branch, branch_state, branch_intents in branches:
-            b_states = [(1.0, branch_state)]
-            for idx in [0, 1]:
-                if idx not in branch_intents:
-                    continue
-                new_b_states = []
-                for p_prev, st in b_states:
-                    if idx == 0:
-                        blocked_agents = {st["a1p"]}
-                        out = single_forward_outcomes(
-                            st["a0p"], st["d0"], st["b0"], st["b1"], st["hb"], blocked_agents
-                        )
-                        for p_out, na, nb0, nb1, nhb in out:
-                            st2 = dict(st)
-                            st2["a0p"] = na
-                            st2["b0"], st2["b1"], st2["hb"] = nb0, nb1, nhb
-                            new_b_states.append((p_prev * p_out, st2))
-                    else:
-                        blocked_agents = {st["a0p"]}
-                        out = single_forward_outcomes(
-                            st["a1p"], st["d1"], st["b0"], st["b1"], st["hb"], blocked_agents
-                        )
-                        for p_out, na, nb0, nb1, nhb in out:
-                            st2 = dict(st)
-                            st2["a1p"] = na
-                            st2["b0"], st2["b1"], st2["hb"] = nb0, nb1, nhb
-                            new_b_states.append((p_prev * p_out, st2))
-                b_states = new_b_states
-
-            for p_fin, st in b_states:
-                ns = (st["a0p"], st["d0"], st["a1p"], st["d1"], st["b0"], st["b1"], st["hb"])
-                next_state_prob[ns] = next_state_prob.get(ns, 0.0) + (p_branch * p_fin)
-
-        return [(p, ns, 1.0 if is_terminal(ns) else 0.0) for ns, p in next_state_prob.items()]
-
-    # ── BFS over reachable states ─────────────────────────────────────────────
-    ACTIONS       = [0, 1, 2]
-    d0_init       = env.agent_dirs[agents[0]]
-    d1_init       = env.agent_dirs[agents[1]]
-    initial_state = (a0_init, d0_init, a1_init, d1_init, box0_init, box1_init, heavy_init)
-    transitions   = {}
-    visited       = {initial_state}
-    queue         = deque([initial_state])
-
-    while queue:
-        state = queue.popleft()
-        transitions[state] = {}
-
-        if is_terminal(state):
-            continue                    # absorbing — no outgoing transitions
-
-        for action1 in ACTIONS:
-            for action2 in ACTIONS:
-                joint = (action1, action2)
-                transitions[state][joint] = apply_joint_action(state, joint)
-
-                for _, ns, _ in transitions[state][joint]:
-                    if ns not in visited:
-                        visited.add(ns)
-                        queue.append(ns)
-
-    return transitions
-
-
-def _run_mpi_on_transitions(transitions, gamma=0.95, k=10, theta=1e-4, max_outer_iters=300):
-    all_states = list(transitions.keys())
-
-    def is_terminal(state):
-        return transitions[state] == {}
-
-    def q_value(state, action, V):
-        return sum(prob * (r + gamma * V.get(s_, 0.0))
-                   for prob, s_, r in transitions[state][action])
-
-    V = {s: 0.0 for s in all_states}
-    policy = {}
-    for s in all_states:
-        if is_terminal(s):
-            policy[s] = None
-        else:
-            policy[s] = next(iter(transitions[s].keys()))
-
-    for _ in range(max_outer_iters):
-        for _ in range(k):
-            delta = 0.0
-            for s in all_states:
-                if is_terminal(s):
-                    V[s] = 0.0
-                    continue
-                old_v = V[s]
-                V[s] = q_value(s, policy[s], V)
-                delta = max(delta, abs(V[s] - old_v))
-            if delta < theta:
-                break
-
-        changed = False
-        for s in all_states:
-            if is_terminal(s):
+    parent = {start: None}     # state -> (prev_state, action_taken)
+    q      = deque([start])
+    while q:
+        cur = q.popleft()
+        pos, d = cur
+        for act in (0, 1, 2):
+            if act == 0:
+                ns = (pos, (d - 1) % 4)
+            elif act == 1:
+                ns = (pos, (d + 1) % 4)
+            else:
+                vec  = DIR_TO_VEC[d]
+                npos = (pos[0] + vec[0], pos[1] + vec[1])
+                if not (0 <= npos[0] < width and 0 <= npos[1] < height): continue
+                if npos in walls or npos in blocked: continue
+                ns = (npos, d)
+            if ns in parent:
                 continue
-            best = max(transitions[s].keys(), key=lambda a: q_value(s, a, V))
-            if best != policy[s]:
-                policy[s] = best
-                changed = True
-        if not changed:
+            parent[ns] = (cur, act)
+            if ns == target:
+                # walk back and return the first action
+                while parent[ns][0] != start:
+                    ns = parent[ns][0]
+                return parent[ns][1]
+            q.append(ns)
+    return None
+
+
+def _assign_boxes_to_goals(boxes, goal_cells, walls, width, height):
+    """Try all (boxes -> goals) permutations, pick the assignment minimising
+    sum of push-BFS distances.  Returns dict {box_pos: goal_pos} or None."""
+    goals = list(goal_cells)
+    if len(boxes) > len(goals):
+        return None
+    best_cost, best_pairs = float("inf"), None
+    for perm in permutations(goals, len(boxes)):
+        cost = 0
+        ok   = True
+        for b, g in zip(boxes, perm):
+            d = _push_bfs_distances(b, walls, width, height).get(g)
+            if d is None:
+                ok = False
+                break
+            cost += d
+        if ok and cost < best_cost:
+            best_cost, best_pairs = cost, list(zip(boxes, perm))
+    return dict(best_pairs) if best_pairs else None
+
+
+# ===========================================================================
+# Part 1 — Online Planning (RPG-driven, no PDDL)
+# ===========================================================================
+
+def run_online_planning(env, max_replans: int = 300) -> int:
+    """
+    Step-by-step replanning using the RPG/BFS pipeline:
+
+      • RPG: build the box push-graph from the static walls.
+      • Each iter:
+          - choose the best box->goal assignment by push-BFS distance,
+          - for each agent, pick the next push step its box needs,
+          - BFS over (agent_pos, agent_dir) to take the first primitive
+            action toward the push stance,
+          - if already at the stance: forward (push attempt).
+
+    Returns the total number of env steps taken.
+    """
+    env.reset()
+    width, height = env.width, env.height
+
+    # Pre-collect static walls (the map doesn't change during the episode).
+    walls = set()
+    for y in range(height):
+        for x in range(width):
+            cell = env.core_env.grid.get(x, y)
+            if cell is not None and cell.type == "wall":
+                walls.add((x, y))
+
+    agents = env.possible_agents
+    total_steps = 0
+
+    for _ in range(max_replans):
+        if env._all_boxes_on_goals():
+            break
+        if total_steps >= env.max_steps:
             break
 
-    return policy, V
+        _, goal_cells, small, heavy = _scan_world(env)
 
+        # Boxes that aren't yet on a goal.
+        pending = [b for b in small if b not in goal_cells]
+        if heavy is not None and heavy not in goal_cells:
+            pending.append(heavy)
+        if not pending:
+            break
 
-def build_single_agent_transition_model(env, agent_idx, goal_idx):
-    walls, goals, small_boxes, heavy = _scan_world(env)
-    if len(small_boxes) <= agent_idx or len(goals) <= goal_idx:
-        return {}
-    box_start = small_boxes[agent_idx]
-    goal = goals[goal_idx]
+        # Goals not already occupied by some box.
+        occupied = {b for b in small + ([heavy] if heavy else []) if b in goal_cells}
+        free_goals = [g for g in goal_cells if g not in occupied]
 
-    p_move = env.move_success_prob
-    p_push = env.push_success_prob
-    p_drift = (1.0 - p_move) / 2.0
-    agent = env.possible_agents[agent_idx]
-    start = (env.agent_positions[agent], env.agent_dirs[agent], box_start)
-    obstacles = set(walls)
-    if heavy is not None:
-        obstacles.add(heavy)
+        assignment = _assign_boxes_to_goals(pending, free_goals, walls, width, height)
+        if assignment is None:
+            break  # not solvable from here
 
-    def in_bounds(p):
-        return 0 <= p[0] < env.width and 0 <= p[1] < env.height
+        # ── For each agent, decide its next env action ──────────────────────
+        # Simple agent-to-box pairing: assign each agent to the closest
+        # pending non-heavy box; heavy needs both agents (handled at the end).
+        small_pending = [b for b in pending if b != heavy]
+        heavy_pending = (heavy is not None and heavy not in goal_cells)
 
-    def blocked(p, box):
-        return (not in_bounds(p)) or p in obstacles or p == box
+        joint_action = {}
 
-    transitions = {}
-    visited = {start}
-    q = deque([start])
-    while q:
-        s = q.popleft()
-        apos, adir, box = s
-        transitions[s] = {}
-        if box == goal:
-            continue
-        for act in [0, 1, 2]:
-            if act == 0:
-                ns = (apos, (adir - 1) % 4, box)
-                transitions[s][act] = [(1.0, ns, 1.0 if box == goal else 0.0)]
-            elif act == 1:
-                ns = (apos, (adir + 1) % 4, box)
-                transitions[s][act] = [(1.0, ns, 1.0 if box == goal else 0.0)]
-            else:
-                vec = DIR_TO_VEC[adir]
-                target = (apos[0] + vec[0], apos[1] + vec[1])
-                if target == box:
-                    push_to = (box[0] + vec[0], box[1] + vec[1])
-                    if blocked(push_to, box):
-                        ns = (apos, adir, box)
-                        transitions[s][act] = [(1.0, ns, 0.0)]
-                    else:
-                        ns_succ = (target, adir, push_to)
-                        ns_fail = (apos, adir, box)
-                        transitions[s][act] = [
-                            (p_push, ns_succ, 1.0 if push_to == goal else 0.0),
-                            (1.0 - p_push, ns_fail, 0.0),
-                        ]
+        if small_pending:
+            # Pair agents with pending small boxes.
+            # Greedy: agent 0 takes the smaller-key pending small box first.
+            agent_box = {}
+            free_agents = list(agents)
+            for box in small_pending:
+                if not free_agents:
+                    break
+                # nearest free agent
+                free_agents.sort(
+                    key=lambda a: abs(env.agent_positions[a][0] - box[0])
+                                  + abs(env.agent_positions[a][1] - box[1]))
+                pick = free_agents.pop(0)
+                agent_box[pick] = box
+
+            for a in agents:
+                if a not in agent_box:
+                    # No small-box task for this agent: idle rotation.
+                    joint_action[a] = 0
+                    continue
+                box = agent_box[a]
+                goal = assignment.get(box)
+                if goal is None:
+                    joint_action[a] = 0
+                    continue
+
+                path = _push_bfs_path(box, goal, walls, width, height)
+                if not path:
+                    joint_action[a] = 0
+                    continue
+
+                next_box_pos, push_vec = path[0]
+                stance_pos = (box[0] - push_vec[0], box[1] - push_vec[1])
+                stance_dir = None
+                for d, v in enumerate(DIR_TO_VEC):
+                    if (v[0], v[1]) == push_vec:
+                        stance_dir = d
+                        break
+
+                # Blocked cells for navigation:
+                # walls (handled in BFS), the box itself, the other agent,
+                # and the other small boxes (treated as obstacles for now).
+                blocked = set()
+                blocked.add(box)
+                if heavy is not None: blocked.add(heavy)
+                for b2 in small:
+                    if b2 != box: blocked.add(b2)
+                for o in agents:
+                    if o != a:
+                        blocked.add(env.agent_positions[o])
+
+                apos = env.agent_positions[a]
+                adir = env.agent_dirs[a]
+                act = _agent_bfs_first_action(
+                    apos, adir, stance_pos, stance_dir,
+                    walls, blocked, width, height)
+                if act is None:
+                    # already at stance — push!
+                    joint_action[a] = 2
                 else:
-                    left_dir = (adir - 1) % 4
-                    right_dir = (adir + 1) % 4
-                    cands = []
-                    for d, p in [(adir, p_move), (left_dir, p_drift), (right_dir, p_drift)]:
-                        v = DIR_TO_VEC[d]
-                        np_ = (apos[0] + v[0], apos[1] + v[1])
-                        cands.append((apos if blocked(np_, box) else np_, p))
-                    agg = {}
-                    for np_, prob in cands:
-                        ns = (np_, adir, box)
-                        agg[ns] = agg.get(ns, 0.0) + prob
-                    transitions[s][act] = [(p, ns, 0.0) for ns, p in agg.items()]
+                    joint_action[a] = act
 
-            for _, ns, _ in transitions[s][act]:
-                if ns not in visited:
-                    visited.add(ns)
-                    q.append(ns)
-    return transitions
+        elif heavy_pending:
+            # Heavy box rendezvous: both agents converge to (heavy - push_vec)
+            # facing push_vec, then both forward.
+            path = _push_bfs_path(heavy, assignment[heavy], walls, width, height)
+            if not path:
+                break
+            _, push_vec = path[0]
+            stance_pos = (heavy[0] - push_vec[0], heavy[1] - push_vec[1])
+            stance_dir = None
+            for d, v in enumerate(DIR_TO_VEC):
+                if (v[0], v[1]) == push_vec:
+                    stance_dir = d
+                    break
+
+            for a in agents:
+                blocked = set()
+                blocked.add(heavy)
+                for b2 in small:
+                    blocked.add(b2)
+                # other agent NOT in blocked (overlap allowed, and we WANT them
+                # at the same stance cell).
+                apos = env.agent_positions[a]
+                adir = env.agent_dirs[a]
+                act = _agent_bfs_first_action(
+                    apos, adir, stance_pos, stance_dir,
+                    walls, blocked, width, height)
+                joint_action[a] = 2 if act is None else act
+        else:
+            break
+
+        _, _, terms, truncs, _ = env.step(joint_action)
+        total_steps += 1
+        if any(terms.values()) or any(truncs.values()):
+            break
+
+    return total_steps
 
 
-def build_heavy_macro_transition_model(env):
-    walls, goals, small_boxes, heavy = _scan_world(env)
-    if heavy is None or len(goals) < 3:
-        return {}
-    goal = goals[2]
-    p_push = env.push_success_prob
-    blocked = set(walls) | set(small_boxes)
+# ===========================================================================
+# Part 2 — Modified Policy Iteration  (two-phase hierarchical)
+# ===========================================================================
+#
+# Hierarchical decomposition (idea: heavy box is immovable until small boxes
+# are placed, so split into two MUCH smaller MDPs):
+#
+#   Phase 1 MDP:  state = (agent_low_pos, agent_high_pos, b0_pos, b1_pos)
+#                 heavy is treated as a WALL.
+#                 goal: both small boxes on their assigned goal cells.
+#
+#   Phase 2 MDP:  state = (agent_low_pos, agent_high_pos, hb_pos)
+#                 small boxes (now at their assigned goals) are walls.
+#                 goal: heavy on its goal cell.
+#
+# Live execution:
+#   - while not (small boxes on their goals): query phase-1 policy
+#   - once they are:                          query phase-2 policy
+# Each phase's policy is wrapped with _DirectionPolicyWrapper that converts
+# cardinal-direction MPI actions into env primitives (rotate / forward).
 
-    def valid(p):
-        return (0 <= p[0] < env.width and 0 <= p[1] < env.height and p not in blocked)
+def get_state(env) -> tuple:
+    """Live env state as a 7-tuple (with directions) — see wrapper for use."""
+    agents = env.possible_agents
+    a0p = tuple(env.agent_positions[agents[0]])
+    d0  = env.agent_dirs[agents[0]]
+    if len(agents) >= 2:
+        a1p = tuple(env.agent_positions[agents[1]])
+        d1  = env.agent_dirs[agents[1]]
+    else:
+        a1p, d1 = a0p, d0
+    _, _, small, heavy = _scan_world(env)
+    b0 = small[0] if len(small) > 0 else None
+    b1 = small[1] if len(small) > 1 else None
+    hb = heavy
+    return (a0p, d0, a1p, d1, b0, b1, hb)
 
-    transitions = {}
-    visited = {heavy}
-    q = deque([heavy])
-    while q:
-        h = q.popleft()
-        transitions[h] = {}
-        if h == goal:
+
+def get_mpi_state(env) -> tuple:
+    return get_state(env)
+
+
+def _canon_boxes(b0, b1):
+    if b1 is None: return (b0, None)
+    if b0 is None: return (b1, None)
+    return (b0, b1) if b0 <= b1 else (b1, b0)
+
+
+def _canon_agents(a0p, a1p):
+    """Lexicographic (x, y) order on grid cells.
+
+    Returns (low_pos, high_pos, swapped) where `swapped` is True iff the
+    first argument `a0p` was the lexicographically larger cell — used to map
+    MPI joint directions back onto env.possible_agents order. Equal positions
+    leave order unchanged (swapped False)."""
+    if a1p < a0p:
+        return a1p, a0p, True
+    return a0p, a1p, False
+
+
+# --------------------------------------------------------------------------
+# Generic phase-MDP builder: handles BOTH phases via a uniform spec.
+# --------------------------------------------------------------------------
+def _build_phase_mdp(env, walls, init_state, goals_for, allow_heavy_push,
+                     gamma, step_penalty, push_p, max_bfs_depth=50,
+                     max_states=10000):
+    """
+    Build the transition table for ONE phase.
+
+    init_state, transitions, etc., are pure tuples; this function is shared
+    between Phase 1 (boxes in state) and Phase 2 (heavy in state).
+
+    Parameters that VARY between phases are passed in:
+      * walls        - cells that block both agent moves AND box pushes
+                       (Phase 1: env walls + heavy's start cell;
+                        Phase 2: env walls + small boxes' goal cells)
+      * init_state   - the phase's initial state tuple
+      * goals_for    - dict: box_index -> goal cell.  Terminal when every
+                       box in the tuple is at its assigned goal.
+      * allow_heavy_push - True only in Phase 2 (joint push semantics)
+    """
+    width, height = env.width, env.height
+    p_move  = env.move_success_prob
+    p_push  = push_p
+    p_drift = (1.0 - p_move) / 2.0
+
+    state_dim = len(init_state)
+    n_agents  = 2
+    n_objs    = state_dim - n_agents     # remaining tuple slots are box positions
+
+    def is_invalid(p):
+        return (p in walls or
+                p[0] < 0 or p[0] >= width or
+                p[1] < 0 or p[1] >= height)
+
+    def is_terminal(s):
+        objs = s[n_agents:]
+        return all(obj == goals_for.get(i) for i, obj in enumerate(objs))
+
+    def normalize_objs(objs):
+        # Phase 1 has 2 small boxes (interchangeable -> canonical sort);
+        # Phase 2 has 1 heavy box (no sort needed).
+        if n_objs == 2:
+            cb = _canon_boxes(objs[0], objs[1])
+            return (cb[0], cb[1])
+        return tuple(objs)
+
+    def normalize(a0p, a1p, objs):
+        lo, hi, _ = _canon_agents(a0p, a1p)
+        return (lo, hi) + normalize_objs(objs)
+
+    def forward_one(ap, d, objs):
+        """One-agent stochastic forward."""
+        vec    = DIR_TO_VEC[d]
+        target = (ap[0] + vec[0], ap[1] + vec[1])
+        if is_invalid(target):
+            return [(1.0, ap, objs)]
+
+        # Pushing logic for each object in `objs`.
+        for i, obj in enumerate(objs):
+            if obj is None or target != obj:
+                continue
+            # Heavy push by single agent: blocked (heavy in objs and no joint push)
+            if allow_heavy_push and n_objs == 1:
+                # Heavy needs both agents — single can't move it.
+                return [(1.0, ap, objs)]
+            push_dest = (target[0] + vec[0], target[1] + vec[1])
+            # Can't push into walls, the heavy (here only in phase 2 — handled above),
+            # or another box.
+            if is_invalid(push_dest):
+                return [(1.0, ap, objs)]
+            if push_dest in objs:
+                return [(1.0, ap, objs)]
+            new_objs = tuple(push_dest if j == i else o for j, o in enumerate(objs))
+            return [
+                (p_push,       target, new_objs),
+                (1.0 - p_push, ap,     objs),
+            ]
+
+        # Empty / goal cell: forward + drift.
+        l_vec = DIR_TO_VEC[(d - 1) % 4]
+        r_vec = DIR_TO_VEC[(d + 1) % 4]
+        l_pos = (ap[0] + l_vec[0], ap[1] + l_vec[1])
+        r_pos = (ap[0] + r_vec[0], ap[1] + r_vec[1])
+        def drift_ok(p):
+            if is_invalid(p): return False
+            return p not in objs
+        actual_l = l_pos if drift_ok(l_pos) else ap
+        actual_r = r_pos if drift_ok(r_pos) else ap
+        bucket = {}
+        for pos, p in ((target, p_move), (actual_l, p_drift), (actual_r, p_drift)):
+            bucket[pos] = bucket.get(pos, 0.0) + p
+        return [(p, pos, objs) for pos, p in bucket.items()]
+
+    def transitions_of(s):
+        a0p, a1p = s[0], s[1]
+        objs     = s[n_agents:]
+        out = {}
+        for d0 in (0, 1, 2, 3):
+            for d1 in (0, 1, 2, 3):
+                joint = (d0, d1)
+
+                # PHASE 2 ONLY: heavy joint push when both agents share a cell.
+                if allow_heavy_push and a0p == a1p and d0 == d1:
+                    vec   = DIR_TO_VEC[d0]
+                    target = (a0p[0] + vec[0], a0p[1] + vec[1])
+                    hb = objs[0]
+                    if target == hb:
+                        push_dest = (hb[0] + vec[0], hb[1] + vec[1])
+                        if not is_invalid(push_dest):
+                            ns = normalize(hb, hb, (push_dest,))
+                            r  = 1.0 if is_terminal(ns) else 0.0
+                            out[joint] = [(p_push, ns, r),
+                                          (1.0 - p_push, s, 0.0)]
+                        else:
+                            out[joint] = [(1.0, s, 0.0)]
+                        continue
+
+                oa = forward_one(a0p, d0, objs)
+                ob = forward_one(a1p, d1, objs)
+                combined = {}
+                for (p1, na0, oa_objs) in oa:
+                    for (p2, na1, ob_objs) in ob:
+                        # Merge object updates (each agent updates at most one)
+                        merged = []
+                        for j in range(n_objs):
+                            if oa_objs[j] != objs[j]:
+                                merged.append(oa_objs[j])
+                            elif ob_objs[j] != objs[j]:
+                                merged.append(ob_objs[j])
+                            else:
+                                merged.append(objs[j])
+                        ns = normalize(na0, na1, tuple(merged))
+                        combined[ns] = combined.get(ns, 0.0) + p1 * p2
+                out[joint] = [(p, ns, 1.0 if is_terminal(ns) else 0.0)
+                              for ns, p in combined.items()]
+        return out
+
+    init_norm = normalize(init_state[0], init_state[1], init_state[n_agents:])
+    trans = {}
+    seen  = {init_norm: 0}          # state -> BFS depth
+    queue = deque([(init_norm, 0)]) # (state, depth)
+    cap_hit = False
+    while queue:
+        s, depth = queue.popleft()
+        if is_terminal(s):
+            trans[s] = {}; continue
+        # States beyond depth/state caps get no outgoing transitions →
+        # the policy wrapper uses its default action for them.  We still add
+        # them to `trans` as terminal-like (empty) entries so that V/policy
+        # has a key for them and successor lookups don't KeyError.
+        if depth >= max_bfs_depth or len(seen) >= max_states:
+            cap_hit = True
+            trans[s] = {}
             continue
-        for d, vec in enumerate(DIR_TO_VEC):
-            nxt = (h[0] + vec[0], h[1] + vec[1])
-            origin = (h[0] - vec[0], h[1] - vec[1])
-            if not valid(nxt) or not valid(origin):
-                transitions[h][d] = [(1.0, h, 0.0)]
-            else:
-                transitions[h][d] = [
-                    (p_push, nxt, 1.0 if nxt == goal else 0.0),
-                    (1.0 - p_push, h, 0.0),
-                ]
-            for _, ns, _ in transitions[h][d]:
-                if ns not in visited:
-                    visited.add(ns)
-                    q.append(ns)
-    return transitions
+        t = transitions_of(s)
+        trans[s] = t
+        for outcomes in t.values():
+            for _, ns, _ in outcomes:
+                if ns not in seen:
+                    if len(seen) >= max_states:
+                        cap_hit = True
+                        # Still register the successor so V is defined for it.
+                        seen[ns] = depth + 1
+                        trans[ns] = {}
+                        continue
+                    seen[ns] = depth + 1
+                    queue.append((ns, depth + 1))
+    if cap_hit:
+        print(f"    (cap reached; {len(trans)} states total)")
+
+    return trans, is_terminal, init_norm
 
 
-def build_mpi_stack(env):
-    env.reset()
-    _, goals, _, _ = _scan_world(env)
-    trans_a0 = build_single_agent_transition_model(env, agent_idx=0, goal_idx=0)
-    trans_a1 = build_single_agent_transition_model(env, agent_idx=1, goal_idx=1)
-    trans_h = build_heavy_macro_transition_model(env)
+def _run_mpi(trans, is_terminal, goal_dist_sum_fn,
+             gamma, k, theta, max_outer, step_penalty,
+             soft_stable_frac=0.005):
+    """Run MPI on a phase MDP with RPG heuristic warm start.
 
-    pol_a0, v_a0 = _run_mpi_on_transitions(trans_a0) if trans_a0 else ({}, {})
-    pol_a1, v_a1 = _run_mpi_on_transitions(trans_a1) if trans_a1 else ({}, {})
-    pol_h, v_h = _run_mpi_on_transitions(trans_h) if trans_h else ({}, {})
-    return {
-        "transitions_a0": trans_a0,
-        "transitions_a1": trans_a1,
-        "transitions_h": trans_h,
-        "policy_a0": pol_a0,
-        "policy_a1": pol_a1,
-        "policy_h": pol_h,
-        "value_a0": v_a0,
-        "value_a1": v_a1,
-        "value_h": v_h,
-        "goals": goals,
-    }
+    Convergence:
+      - Inner partial-eval loop stops when max |ΔV| < theta.
+      - Outer loop stops when fewer than `soft_stable_frac` of states had
+        their policy action change in the improvement step (soft criterion
+        — strict "no change at all" rarely fires because of tie-breaking).
+    `goal_dist_sum_fn(state)` returns h(s) used for V_init = gamma**h."""
+    V = {}
+    pol = {}
+    n_non_terminal = 0
+    for s in trans:
+        if is_terminal(s):
+            V[s] = 0.0
+        else:
+            h = goal_dist_sum_fn(s)
+            V[s] = 0.0 if h == float("inf") else gamma ** max(1, h)
+            n_non_terminal += 1
+        pol[s] = (1, 1)
+
+    def q(s, a):
+        total = 0.0
+        for p, ns, r in trans[s][a]:
+            total += p * (r + (0.0 if r > 0.0 else step_penalty)
+                          + gamma * V[ns])
+        return total
+
+    threshold = max(1, int(n_non_terminal * soft_stable_frac))
+
+    for outer in range(max_outer):
+        # Partial policy evaluation — k sweeps with early stop on V-stability
+        for _ in range(k):
+            max_delta = 0.0
+            for s in trans:
+                if is_terminal(s):
+                    V[s] = 0.0; continue
+                if not trans[s]:        # boundary / cap-frontier: no actions to evaluate
+                    continue
+                old = V[s]
+                V[s] = q(s, pol[s])
+                d = abs(V[s] - old)
+                if d > max_delta:
+                    max_delta = d
+            if max_delta < theta:
+                break
+
+        # Greedy policy improvement — count CHANGED actions
+        changed = 0
+        for s in trans:
+            if is_terminal(s):
+                continue
+            if not trans[s]:            # boundary state — keep default policy
+                continue
+            best = max(trans[s].keys(), key=lambda a: q(s, a))
+            if best != pol[s]:
+                pol[s] = best
+                changed += 1
+
+        # Soft convergence: stop when policy is mostly stable
+        if changed <= threshold:
+            print(f"    Converged after {outer + 1} outer iterations "
+                  f"(changed={changed}/{n_non_terminal}, threshold={threshold}).")
+            break
+    return pol, V
 
 
-class HierarchicalPolicy(dict):
+# --------------------------------------------------------------------------
+# Two-phase Hierarchical Policy
+# --------------------------------------------------------------------------
+class _HierarchicalPolicy(dict):
+    """At lookup time, picks Phase 1 or Phase 2 by inspecting box state.
+
+    inner1 maps Phase-1 state (agent_low_pos, agent_high_pos, b0, b1) -> dirs.
+    inner2 maps Phase-2 state (agent_low_pos, agent_high_pos, hb) -> dirs.
+    Slots are lex-ordered agent cells (see _canon_agents); __getitem__ maps
+    directions back to env.possible_agents order.
+    small_goals is the set of cells that, when occupied by small boxes,
+    triggers the switch to Phase 2.
     """
-    Approximate hierarchical policy:
-      - small boxes: each agent follows its own single-agent MPI policy
-      - heavy phase: both agents align behind heavy then push toward heavy-MPI direction
-    """
 
-    def __init__(self, stack):
+    def __init__(self, inner1, inner2, small_goals, heavy_goal):
         super().__init__()
-        self.stack = stack
+        self.inner1 = inner1
+        self.inner2 = inner2
+        self.small_goals = set(small_goals or [])
+        self.heavy_goal  = heavy_goal
 
-    def __missing__(self, state):
+    def __contains__(self, state):
+        return isinstance(state, tuple) and len(state) == 7
+
+    def __len__(self):
+        return len(self.inner1) + len(self.inner2)
+
+    def __getitem__(self, state):
         a0p, d0, a1p, d1, b0, b1, hb = state
-        pol_a0 = self.stack["policy_a0"]
-        pol_a1 = self.stack["policy_a1"]
-        pol_h = self.stack["policy_h"]
+        ca0, ca1, swapped = _canon_agents(a0p, a1p)
 
-        local0 = (a0p, d0, b0)
-        local1 = (a1p, d1, b1)
-        goals = self.stack.get("goals", [])
-        small_pending = len(goals) >= 2 and (b0 != goals[0] or b1 != goals[1])
-        if local0 in pol_a0 and local1 in pol_a1 and small_pending:
-            act = (pol_a0.get(local0, 2), pol_a1.get(local1, 2))
-            self[state] = act
-            return act
+        # Phase 2 active iff both small boxes are at small-goal cells.
+        small_done = (b0 in self.small_goals and
+                      b1 in self.small_goals and
+                      b0 is not None and b1 is not None)
 
-        if hb in pol_h:
-            push_dir = pol_h[hb]
-            if push_dir is None:
-                act = (2, 2)
-                self[state] = act
-                return act
-            vec = DIR_TO_VEC[push_dir]
-            target_origin = (hb[0] - vec[0], hb[1] - vec[1])
-            desired_dir = push_dir
-            a0_act = 2 if (a0p == target_origin and d0 == desired_dir) else (0 if (d0 - desired_dir) % 4 == 1 else 1)
-            a1_act = 2 if (a1p == target_origin and d1 == desired_dir) else (0 if (d1 - desired_dir) % 4 == 1 else 1)
-            act = (a0_act, a1_act)
-            self[state] = act
-            return act
+        if small_done and self.inner2:
+            target = self.inner2.get((ca0, ca1, hb), (1, 1))
+        else:
+            cb0, cb1 = _canon_boxes(b0, b1)
+            target = self.inner1.get((ca0, ca1, cb0, cb1), (1, 1))
 
-        act = (2, 2)
-        self[state] = act
-        return act
+        td_lo, td_hi = target
+        # Map canonical (low-cell, high-cell) dirs to env agent indices.
+        td0, td1 = (td_hi, td_lo) if swapped else (td_lo, td_hi)
+
+        def env_act(current, target_dir):
+            if current == target_dir: return 2
+            right = (target_dir - current) % 4
+            left  = (current - target_dir) % 4
+            return 1 if right <= left else 0
+
+        return (env_act(d0, td0), env_act(d1, td1))
+
+
+def build_transition_model(env):
+    """Compatibility shim — Part 2 now uses two phase MDPs internally."""
+    return None  # callers should use modified_policy_iteration directly
 
 
 def modified_policy_iteration(
     env,
     gamma: float = 0.95,
-    k: int = 10,
+    k: int = 3,
     theta: float = 1e-4,
-    max_outer_iters: int = 500,
+    max_outer_iters: int = 30,
+    step_penalty: float = -0.02,
+    max_bfs_depth: int = 50,         # BFS depth cap per phase
+    max_states: int = 50_000,        # hard state-count cap per phase
+    soft_stable_frac: float = 0.005, # outer-loop "near-stable" tolerance
 ):
+    """Two-phase hierarchical MPI:
+        Phase 1: small boxes only (heavy treated as wall).
+        Phase 2: heavy box only  (small boxes at goals treated as walls).
+
+    The two sub-policies are exposed via a single _HierarchicalPolicy that
+    dispatches based on whether the small boxes are already at their goals.
     """
-    TODO — Modified Policy Iteration.
+    env.reset()
+    walls, goal_cells, small, heavy = _scan_world(env)
+    width, height = env.width, env.height
 
-    Parameters
-    ----------
-    env   : StochasticMultiAgentBoxPushEnv (used only to build the model)
-    gamma : discount factor
-    k     : number of partial policy-evaluation sweeps per iteration
-    theta : convergence threshold for value change
-    max_outer_iters : safety cap on outer iterations
+    # ── RPG assignment: pick which 2 goals are for small boxes + which is heavy ──
+    goals_list = sorted(goal_cells)
+    p_push     = env.push_success_prob
 
-    Returns
-    -------
-    policy : dict  state -> joint_action
-    V      : dict  state -> float
-    """
-    print("Building factored transition models...")
-    stack = build_mpi_stack(env)
-    n0 = len(stack["transitions_a0"])
-    n1 = len(stack["transitions_a1"])
-    nh = len(stack["transitions_h"])
-    print(f"  a0 states={n0}, a1 states={n1}, heavy states={nh}")
+    if heavy is not None and len(small) == 2 and len(goals_list) == 3:
+        # Try each (heavy_goal_choice) × (perm of remaining 2 to small boxes).
+        best = None
+        for heavy_goal in goals_list:
+            remaining = [g for g in goals_list if g != heavy_goal]
+            # Phase 1's push-graph walls: env walls + heavy (heavy is immovable).
+            p1_walls = walls | {heavy}
+            for perm in permutations(remaining, len(small)):
+                cost = 0
+                ok = True
+                for b, g in zip(small, perm):
+                    d = _push_bfs_distances(b, p1_walls, width, height).get(g)
+                    if d is None: ok = False; break
+                    cost += d
+                if not ok: continue
+                # Phase 2's push-graph walls: env walls + small boxes at their goals.
+                p2_walls = walls | set(perm)
+                d_heavy  = _push_bfs_distances(heavy, p2_walls, width, height).get(heavy_goal)
+                if d_heavy is None: continue
+                total = cost + d_heavy
+                if best is None or total < best[0]:
+                    best = (total, list(perm), heavy_goal, p1_walls, p2_walls)
+        if best is None:
+            print("  No feasible assignment found.")
+            return _HierarchicalPolicy({}, {}, [], None), {}
+        _, small_goals, heavy_goal, p1_walls, p2_walls = best
+    else:
+        # No heavy or different shape: only Phase 1 needed.
+        # Try all assignments of small boxes to goals.
+        p1_walls = walls | ({heavy} if heavy is not None else set())
+        best = None
+        for perm in permutations(goals_list, len(small)) if small else [[]]:
+            cost = 0
+            ok = True
+            for b, g in zip(small, perm):
+                d = _push_bfs_distances(b, p1_walls, width, height).get(g)
+                if d is None: ok = False; break
+                cost += d
+            if ok and (best is None or cost < best[0]):
+                best = (cost, list(perm))
+        small_goals = best[1] if best else []
+        heavy_goal  = None
+        p2_walls    = None
 
-    # Student-facing note for demo/report:
-    # We use hierarchical approximation instead of one full joint MDP graph.
-    # This reduces state explosion but gives approximate (not globally optimal) policy.
-    policy = HierarchicalPolicy(stack)
-    V = {
-        "value_a0": stack["value_a0"],
-        "value_a1": stack["value_a1"],
-        "value_h": stack["value_h"],
+    print(f"  RPG assignment: small_goals={small_goals}, heavy_goal={heavy_goal}")
+
+    # ── Phase 1 MDP ─────────────────────────────────────────────────────────
+    print("  Phase 1 (small boxes; heavy as wall): building...")
+    t0 = time.time()
+    p1_init = (
+        tuple(env.agent_positions[env.possible_agents[0]]),
+        tuple(env.agent_positions[env.possible_agents[1]])
+        if len(env.possible_agents) >= 2
+        else tuple(env.agent_positions[env.possible_agents[0]]),
+        small[0] if len(small) > 0 else None,
+        small[1] if len(small) > 1 else None,
+    )
+    p1_goals = {0: small_goals[0] if len(small_goals) > 0 else None,
+                1: small_goals[1] if len(small_goals) > 1 else None}
+    p1_trans, p1_is_terminal, p1_init_norm = _build_phase_mdp(
+        env, p1_walls, p1_init, p1_goals, allow_heavy_push=False,
+        gamma=gamma, step_penalty=step_penalty, push_p=p_push,
+        max_bfs_depth=max_bfs_depth, max_states=max_states)
+    print(f"    {len(p1_trans)} states ({time.time()-t0:.2f}s).")
+
+    # Phase 1 RPG heuristic
+    p1_dist_tables = {
+        g: _push_bfs_distances(g, p1_walls, width, height)
+        for g in small_goals
     }
+    def p1_h(s):
+        objs = s[2:]
+        total = 0
+        for obj in objs:
+            if obj is None: continue
+            best = float("inf")
+            for _, dm in p1_dist_tables.items():
+                d = dm.get(obj, float("inf"))
+                if d < best: best = d
+            if best == float("inf"): return float("inf")
+            total += best
+        return total
+
+    print("  Phase 1 MPI...")
+    p1_pol, _ = _run_mpi(p1_trans, p1_is_terminal, p1_h,
+                         gamma, k, theta, max_outer_iters, step_penalty,
+                         soft_stable_frac=soft_stable_frac)
+
+    # ── Phase 2 MDP (only if there's a heavy box) ───────────────────────────
+    p2_pol = {}
+    if heavy is not None and heavy_goal is not None:
+        print("  Phase 2 (heavy box; small at goals as walls): building...")
+        t0 = time.time()
+        p2_init = (
+            tuple(env.agent_positions[env.possible_agents[0]]),
+            tuple(env.agent_positions[env.possible_agents[1]])
+            if len(env.possible_agents) >= 2
+            else tuple(env.agent_positions[env.possible_agents[0]]),
+            heavy,
+        )
+        p2_goals = {0: heavy_goal}
+        p2_trans, p2_is_terminal, _ = _build_phase_mdp(
+            env, p2_walls, p2_init, p2_goals, allow_heavy_push=True,
+            gamma=gamma, step_penalty=step_penalty, push_p=p_push,
+            max_bfs_depth=max_bfs_depth, max_states=max_states)
+        print(f"    {len(p2_trans)} states ({time.time()-t0:.2f}s).")
+
+        p2_dist_table = _push_bfs_distances(heavy_goal, p2_walls, width, height)
+        def p2_h(s):
+            hb = s[2]
+            d = p2_dist_table.get(hb, float("inf"))
+            return d
+
+        print("  Phase 2 MPI...")
+        p2_pol, _ = _run_mpi(p2_trans, p2_is_terminal, p2_h,
+                             gamma, k, theta, max_outer_iters, step_penalty,
+                             soft_stable_frac=soft_stable_frac)
+
+    policy = _HierarchicalPolicy(p1_pol, p2_pol, small_goals, heavy_goal)
+    V = {"phase1_size": len(p1_pol), "phase2_size": len(p2_pol)}
     return policy, V
 
 
+
+
+# ===========================================================================
+# Evaluation (do not modify)
 # ===========================================================================
 # Evaluation (do not modify)
 # ===========================================================================
@@ -1003,9 +906,9 @@ def evaluate_policy(policy_fn, env, n_runs: int = 100, max_steps: int = 500):
 if __name__ == "__main__":
     env = StochasticMultiAgentBoxPushEnv(ascii_map=ASCII_MAP, max_steps=500)
 
-    # ── Part 1: Online Planning ──────────────────────────────────────────────
+    # -- Part 1: Online Planning ---------------------------------------------
     print("=" * 60)
-    print("Part 1 — Online Planning (classical planner on stochastic env)")
+    print("Part 1 -- Online Planning (classical planner on stochastic env)")
     print("=" * 60)
 
     # Wrap run_online_planning as a policy function for the evaluator
@@ -1014,7 +917,7 @@ if __name__ == "__main__":
         This wrapper runs one COMPLETE episode internally and is only a shim
         for the evaluator.  evaluate_policy will reset the env before each
         call, so we hand control back immediately with a do-nothing action
-        after the first step — the real logic is inside run_online_planning.
+        after the first step -- the real logic is inside run_online_planning.
 
         NOTE: because run_online_planning drives the env loop itself, you
         should call it directly (see the manual loop below) for the 100-run
@@ -1031,14 +934,14 @@ if __name__ == "__main__":
         steps = run_online_planning(env_ep)
         online_steps.append(steps)
         if (i + 1) % 10 == 0:
-            print(f"  run {i+1}/100 — steps so far: {steps}")
+            print(f"  run {i+1}/100 -- steps so far: {steps}")
 
     mean_ol, std_ol = float(np.mean(online_steps)), float(np.std(online_steps))
-    print(f"\nOnline Planning  →  mean = {mean_ol:.2f}  std = {std_ol:.2f}\n")
+    print(f"\nOnline Planning  ->  mean = {mean_ol:.2f}  std = {std_ol:.2f}\n")
 
-    # ── Part 2: Modified Policy Iteration ───────────────────────────────────
+    # -- Part 2: Modified Policy Iteration ------------------------------------
     print("=" * 60)
-    print("Part 2 — Modified Policy Iteration")
+    print("Part 2 -- Modified Policy Iteration")
     print("=" * 60)
 
     env_mpi = StochasticMultiAgentBoxPushEnv(ascii_map=ASCII_MAP, max_steps=500)
@@ -1046,16 +949,16 @@ if __name__ == "__main__":
 
     def mpi_policy_fn(env, obs):
         """Convert current env state to a joint action using the MPI policy."""
-        state = get_mpi_state(env)   # full tuple: positions + headings + boxes
+        state        = get_mpi_state(env)
         joint_action = policy[state]
         # joint_action is a tuple (action_agent0, action_agent1)
         agents = env.possible_agents
         return {agents[0]: joint_action[0], agents[1]: joint_action[1]}
 
     mean_mpi, std_mpi = evaluate_policy(mpi_policy_fn, env_mpi, n_runs=100)
-    print(f"\nMPI              →  mean = {mean_mpi:.2f}  std = {std_mpi:.2f}\n")
+    print(f"\nMPI              ->  mean = {mean_mpi:.2f}  std = {std_mpi:.2f}\n")
 
-    # ── Summary ──────────────────────────────────────────────────────────────
+    # -- Summary --------------------------------------------------------------
     print("=" * 60)
     print("SUMMARY")
     print("=" * 60)
